@@ -89,6 +89,6 @@ Logical Diagram Overview
 5. Check Backup Configurations - 05_Backups/ contains Veeam backup jobs, secondary repository simulation, and recovery examples.
 6. Read Lab Scenarios - 06_Scenarios/ includes step-by-step use cases demonstrating attacks, monitoring, and behaviours that were observed as well as remediation (if required).
 
-##Contact
+## Contact
 - GitHub: https://github.com/karletonz1
 - LinkedIn: https://www.linkedin.com/in/karloc
