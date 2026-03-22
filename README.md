@@ -82,12 +82,12 @@ Logical Diagram Overview
 - **Topology Notes:** DMZ isolated, firewall at network edge; internal VLANs routed via VyOS; VPN simulated from an external client to DMZ server.
 
 ## How to Explore
-1. Start with the Topology - Open 01_Topology to understand the network layout.
-2. Review Server & Client Configurations - 02_Servers_Clients/ contain screenshots, configuration files, and notes.
-3. Review Firewall Policies & Router Configurations - 03_Firewal_Router/ contain screenshots, configuration files, and policy rules.
-4. Inspect Security Tools - 04_Security/ has Splunk dashboards, Wazuh agent configs, Kali scenarios, and Nessus reports.
-5. Check Backup Configurations - 05_Backups/ contains Veeam backup jobs, secondary repository simulation, and recovery examples.
-6. Read Lab Scenarios - 06_Scenarios/ includes step-by-step use cases demonstrating attacks, monitoring, and behaviours that were observed as well as remediation (if required).
+1. Start with the Topology - Open `01_Topology` to understand the network layout.
+2. Review Server & Client Configurations - `02_Servers_Clients`/ contain screenshots, configuration files, and notes.
+3. Review Firewall Policies & Router Configurations - `03_Firewall_Router`/ contain screenshots, configuration files, and policy rules.
+4. Inspect Security Tools - `04_Security`/ has Splunk dashboards, Wazuh agent configs, Kali scenarios, and Nessus reports.
+5. Check Backup Configurations - `05_Backups`/ contains Veeam backup jobs, secondary repository simulation, and recovery examples.
+6. Read Lab Scenarios - `06_Scenarios`/ includes step-by-step use cases demonstrating attacks, monitoring, and behaviours that were observed as well as remediation (if required).
 
 ## Contact
 - GitHub: https://github.com/karletonz1
