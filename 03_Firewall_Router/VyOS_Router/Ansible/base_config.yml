@@ -1,0 +1,19 @@
+---
+- name: Apply Base System Configuration
+  hosts: karlo_network
+  gather_facts: no
+
+  tasks:
+    - name: Set System Hostname
+      vyos.vyos.vyos_hostname:
+        hostname: "{{ inventory_hostname }}"
+
+    - name: Configure Login Banner (MOTD)
+      vyos.vyos.vyos_banner:
+        banner: motd
+        text: |
+          *******************************************************
+          * WARNING: AUTHORIZED ACCESS ONLY - KARLO NETWORK OPS *
+          *         Property of Karlo Core Infrastructure       *
+          *******************************************************
+        state: present
