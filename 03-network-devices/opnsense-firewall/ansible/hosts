@@ -1,0 +1,12 @@
+[opnsense_nodes]
+KARLO-CN-FW-01 ansible_host=10.0.0.100
+KARLO-CN-FW-02 ansible_host=10.0.0.200
+
+[opnsense_nodes:vars]
+# System Credentials
+ansible_user=root
+ansible_password=opnsense
+
+# Connection Settings
+ansible_connection=network_cli
+ansible_network_os=community.network.opnsense
