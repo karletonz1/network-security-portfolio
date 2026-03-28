@@ -1,6 +1,6 @@
 [opnsense_nodes]
-KARLO-CN-FW-01 ansible_host=10.0.0.100
-KARLO-CN-FW-02 ansible_host=10.0.0.200
+karlo-cn-fe-01 ansible_host=10.0.0.100
+karlo-cn-fw-02 ansible_host=10.0.0.200
 
 [opnsense_nodes:vars]
 # System Credentials
