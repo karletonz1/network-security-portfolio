@@ -1,5 +1,5 @@
 [opnsense_nodes]
-karlo-cn-fe-01 ansible_host=10.0.0.100
+karlo-cn-fw-01 ansible_host=10.0.0.100
 karlo-cn-fw-02 ansible_host=10.0.0.200
 
 [opnsense_nodes:vars]
