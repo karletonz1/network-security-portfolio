@@ -1,0 +1,9 @@
+[karlo_network]
+KARLO-CN-CORE-RTR-01 ansible_host=10.0.0.1
+KARLO-CN-CORE-RTR-02 ansible_host=10.0.0.2
+
+[karlo_network:vars]
+ansible_user=vyos
+ansible_password=vyos
+ansible_connection=network_cli
+ansible_network_os=vyos.vyos.vyos
