@@ -1,6 +1,6 @@
 [karlo_network]
-karlo-cn-rtr-01 ansible_host=10.0.0.2
-karlo-cn-rtr-02 ansible_host=10.0.0.3
+karlo-cn-rtr-01 ansible_host=10.0.0.1
+karlo-cn-rtr-02 ansible_host=10.0.0.2
 
 [karlo_network:vars]
 ansible_user=vyos
