@@ -15,24 +15,58 @@ Subnets
 | 30 | Security Applications | 10.0.30.0/24
 | 40 | DMZ | 10.0.40.0/24
 | 50 | Production Servers | 10.0.50.0/24 
+| 60 | Backups | 10.0.60.0/24
 | 666 | Black Hole Sun | 
 
-IP address Allocation (VRRP)
+ℹ️ **VLAN 666:** Used as a "Blackhole" Native VLAN for all trunk ports**
+
+IP address Allocation (VRRP Gateways)
 
 | Vlan ID | Vlan Name | Subnet | VRRP IP (GW) | MTU | Primary Nodes |  
 |---------|-----------|--------|--------------|-----|---------------|
-| 10| NET-MGMT	| 10.0.10.0/24 | 	10.0.10.1 |	1500 |	VyOS, OPNsense, OVS, Ansible Node 
-| 11 | SRV-MGMT |	10.0.11.0/24 |	10.0.11.1 |	1500 |	Hypervisor Host, Veeam, VM Consoles 
-| 20 |	WIN-CLIENTS |	10.0.20.0/24 |	10.0.20.1 |	1500 |	Windows 10/11 Workstations 
-| 21 |	LIN-CLIENTS |	10.0.21.0/24 |	10.0.21.1 |	1500 |	Ubuntu/Fedora Workstations 
-| 30 | 	SEC-APPS |	10.0.30.0/24 |	10.0.30.1 |	1500 |	Wazuh Manager, Splunk Indexer 
-| 40 |	DMZ |	10.0.40.0/24 |	10.0.40.1 |	1500 |	Web Servers, External-Facing Apps
-| 50 | 	PRD-SVRS |	10.0.50.0/24 |	10.0.50.1	| 1500 |	App Servers, DB Servers, File Shares
+| 10| NET-MGMT	| 10.0.10.0/24 | 	10.0.10.254 |	1500 |	VyOS, OPNsense, OVS, Ansible Node, ESXi Host
+| 11 | SRV-MGMT |	10.0.11.0/24 |	10.0.11.254 |	1500 |	Hypervisor Host, Veeam, VM Consoles, Domain Controllers 
+| 20 |	WIN-CLIENTS |	10.0.20.0/24 |	10.0.20.254 |	1500 |	Windows 10 Workstations 
+| 21 |	LIN-CLIENTS |	10.0.21.0/24 |	10.0.21.254 |	1500 |	Ubuntu Workstations 
+| 30 | 	SEC-APPS |	10.0.30.0/24 |	10.0.30.254 |	1500 |	Wazuh Manager, Splunk, Tenable, Kali Linux
+| 40 |	DMZ |	10.0.40.0/24 |	10.0.40.254 |	1500 |	Apache & IIS Web Servers
+| 50 | 	PRD-SVRS |	10.0.50.0/24 |	10.0.50.254	| 1500 |	Simulated App Servers
+| 60 | BACKUPS | 10.0.60.0/24 | 10.0.60.254 | 1500 | Veeam Backups
 | 666 |	NATIVE |	NONE |	N/A |	1500 |	Unused Ports (Security Blackhole)
 
+This design utilizes RFC 5798 (VRRPv3). The .1 address in each subnet is a Virtual IP shared by a redundant pair of VyOS routers to ensure high availability for all gateway services.
+
+IP Address Allocation (Devices)
+| Hostname | Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role |
+|----------|------|------------|---------|--------|---------|-----|------|
+| karlo-cn-rtr-01| eth0 | 10.0.10.1 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management |
+| karlo-cn-rtr-02| eth0 | 10.0.10.2 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management |
+| karlo-cn-ds-01| eth0 | 10.0.10.150 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+| karlo-cn-ds-02| eth0 | 10.0.10.250 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+| karlo-cn-fw-01| eth0 | 10.0.10.100 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+| karlo-cn-fw-02| eth0 | 10.0.10.200 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+| karlo-cn-esx-01| eth0/vmk0 | 10.0.10.3 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+| karlo-cn-esx-02| eth0/vmk0 | 10.0.10.4 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+
+ℹ️**OOBM (Out-of-Band Management):**  
+Dedicated logical interface on the VyOS routers used exclusively for administrative traffic (SSH, SNMP, Syslog). This path is isolated from the data-plane LACP bonds to ensure          reachability during network contention.
+
+ℹ️**Management Port:**  
+Physical management interfaces on the OPNsense firewalls and Open vSwitch (OVS) nodes. These ports provide access to the WebGUI and Control Plane, isolated from the production transit and client VLANs.
+
+ℹ️ **Notation:**  
+The Port/Interface column displays the physical GNS3 port followed by the logical OS interface (e.g., eth0/vmk0). This ensures alignment between the virtual lab topology and the internal hypervisor configuration.
 
 
-**Note on VLAN 666: Used as a "Blackhole" Native VLAN for all trunk ports to prevent VLAN Hopping attacks.**
+Service & Port Map
+| Source |	Destination |	Protocol/Port |	Service |
+|--------|--------------|---------------|---------|
+| ANY |	DMZ|  (50) |	TCP 80, 443 |	Web Traffic (External)
+| ALL SUBNETS |	SEC-APPS (30) |	UDP 1514, 1515 |	Wazuh Agent Logs
+| ALL SUBNETS |	SEC-APPS (30) |	TCP 9997 |	Splunk Data Ingest
+| NET-MGMT (10) |	ALL SUBNETS |	TCP 22 |	Ansible SSH Management
+
+
 
 ## 3. High Availability Logic (VRRP)
 
@@ -44,6 +78,8 @@ Redundancy is managed via VRRP on top of the LACP Bond (bond0).
 
 - Hello Interval: 1 Second.
 
+
+
 ## 4. MTU & Performance Policy
 
 Standard MTU (1500):
@@ -54,6 +90,6 @@ Standard MTU (1500):
 
 - Applied to the Inter-Router LACP Backbone.
 
-- Applied to Server and Storage segments to reduce CPU overhead during high-volume transfers. 
-Note: in a production environment, there would be specific instances where an MTU higher than 1500 would be needed to accomodate jumbo frames. This rationale has not been applied to this lab.
+- Applied to Servers connections.  
+ℹ️ In a production environment, there would be specific instances where an MTU higher than 1500 would be needed to accomodate jumbo frames. Specific storage devices have not been applied to this lab.
 
