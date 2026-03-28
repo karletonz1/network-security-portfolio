@@ -1,6 +1,6 @@
 [ovs_distribution]
-karlo-ovs-distro-01 ansible_host=10.0.0.150
-karlo-ovs-distro-02 ansible_host=10.0.0.250
+karlo-cn-ds-01 ansible_host=10.0.0.150
+karlo-cn-ds-02 ansible_host=10.0.0.250
 
 [ovs_distribution:vars]
 # Standard Management Credentials
