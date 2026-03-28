@@ -1,6 +1,6 @@
 # Network Design & Standards (LLD)
 
-This document defines the logical architecture, IP addressing scheme, and operational standards for the Karlo-CN Infrastructure. All network devices (VyOS, OPNsense, OVS) will adhere to these specifications.
+This document defines the logical architecture, IP addressing scheme, and operational standards for the Karlo-CN Infrastructure. All devices within the lab will adhere to these specifications.
 
 ## 1. IP Address Management (IPAM)
 
