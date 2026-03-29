@@ -22,22 +22,24 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
-**karlo-cn-ds-01** 
-| Device A port | Device B Device | Device B Hostname | Device B Port |
-|----------------------|-----------------|-------------------|---------------|
-| eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | port 1
-| eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | port 2
-| eth14 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 14
-| eth15 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 15
 
 
-**karlo-cn-ds-02** 
-| Device A port | Device B Device | Device B Hostname | Device B Port |
-|----------------------|-----------------|-------------------|---------------|
-| eth1 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 1 
-| eth2 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 2
-| eth14 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 14
-| eth15 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 15
+### Interface Mapping
+
+| Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
+|-------------------|---------------|-----------------|-------------------|---------------|
+| karlo-cn-ds-01 | eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | port 1
+| karlo-cn-ds-01 | eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | port 2
+| karlo-cn-ds-01 | eth14 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 14
+| karlo-cn-ds-01 | eth15 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 15
+
+
+| Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
+|-------------------|---------------|-----------------|-------------------|---------------|
+| karlo-cn-ds-02 | eth1 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 1 
+| karlo-cn-ds-02 | eth2 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 2
+| karlo-cn-ds-02 | eth14 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 14
+| karlo-cn-ds-02 | eth15 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 15
 
 
 
