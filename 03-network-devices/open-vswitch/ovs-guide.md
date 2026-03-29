@@ -127,11 +127,17 @@ This necessitated a High-Availability Router-on-a-Stick (ROAS) design. Redundanc
 
 ℹ️**Hurdle 2:Control Plane Isolation**  
 The Hurdle:  
-Relying on the switching fabric for router heartbeats introduced the risk of "Split-Brain" scenarios during high broadcast traffic.
+Relying on the distro switches for router heartbeats introduced the risk of split-brain scenarios into the topology.
 
 The Solution:  
-A dedicated Point-to-Point HA Link was established between karlo-cn-rtr-01 and rtr-02 using a non-routable /30 subnet (10.0.70.0/30). This isolates the "Keep-Alive" traffic from the production data plane. The update of the IP table with the inclusion of the new subnet and ip addresses for the routers was needed.
+The decision was made to create a dedicated point-to-point HA Link between rtr-01 and rtr-02 using a /30 subnet (10.0.70.0/30). This keeps the keep-alive traffic separate from production. The update of the IP table with the inclusion of the new subnet and ip addresses for the routers was needed.
 
+ℹ️**Hurdle 2: Multi-Tiered Redundancy Pathing**  
+The Challenge:  
+Ensuring high availability from the Client to the Core without creating logical loops.
+
+The Solution:  
+I implemented a three-tier hierarchical design. Redundancy is achieved at Layer 2 via LACP Bonds between switches and at Layer 3 via VRRP Gateways on the VyOS Core. Explicitly tagging all infrastructure traffic and blackholing the native VLAN, created a hardened environment suitable for automated deployment.
 
 ### 7. Security & Compliance Hardening
 
