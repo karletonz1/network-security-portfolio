@@ -91,44 +91,92 @@ Trunk ports will be configured for eth1 and eth2. Vlan configuration for all vla
 
 Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation.
 
-**karlo-cn-ds-01 Config**
+**karlo-cn-ds-01 Bootstrap Config**
 ```text
-# 1. Create the logical bridge
+# Create bridge and enable STP
 sudo ovs-vsctl add-br br0
-
-# 2. Enable STP immediately
 sudo ovs-vsctl set bridge br0 stp_enable=true
 
-# 3. Transition the physical port to the bridge
-sudo ovs-vsctl add-port br0 eth0
+# Add eth5 (The downlink to Access-01) for initial bootstrap reachability
+sudo ovs-vsctl add-port br0 eth5
 
-# 4. Move Management IP to the Bridge
-sudo ip addr flush dev eth0
-sudo ip addr add 10.0.10.150/24 dev br0
+# Add the first peer link
+sudo ovs-vsctl add-port br0 eth14
+
+# Add the second peer link
+sudo ovs-vsctl add-port br0 eth15
+
+# Assign Management IP address
+sudo ip addr flush dev eth5
+sudo ip addr add 10.0.10.104/24 dev br0
 sudo ip link set br0 up
 
-# 5. Set route to VyOS VIP and point to Ansible Node
+# Set Gateway to the Router Management VIP
 sudo ip route add default via 10.0.10.254
 ```
-**karlo-cn-ds-02 Config**
+**karlo-cn-ds-02 Bootstrap Config**
 ```text
-# 1. Create the logical bridge
+# Create bridge and enable STP
 sudo ovs-vsctl add-br br0
-
-# 2. Enable STP immediately
 sudo ovs-vsctl set bridge br0 stp_enable=true
 
-# 3. Transition the physical port to the bridge
-sudo ovs-vsctl add-port br0 eth0
+# Add eth6 (The downlink to Access-02) for initial bootstrap reachability
+sudo ovs-vsctl add-port br0 eth6
 
-# 4. Move Management IP to the Bridge
-sudo ip addr flush dev eth0
-sudo ip addr add 10.0.10.250/24 dev br0
+# Add the first peer link
+sudo ovs-vsctl add-port br0 eth14
+
+# Add the second peer link
+sudo ovs-vsctl add-port br0 eth15
+
+# Assign Management IP address
+sudo ip addr flush dev eth6
+sudo ip addr add 10.0.10.105/24 dev br0
 sudo ip link set br0 up
 
-# 5. Set route to VyOS VIP and point to Ansible Node
+# Set Gateway to the Router Management VIP
 sudo ip route add default via 10.0.10.254
 ```
+**karlo-cn-access-01 Bootstrap Config**
+```text
+# Create bridge and enable STP
+sudo ovs-vsctl add-br br0
+sudo ovs-vsctl set bridge br0 stp_enable=true
+
+# Add eth15 (The link to Ansible node)
+sudo ovs-vsctl add-port br0 eth15
+
+# Add the uplinks to reach the Distro Layer
+sudo ovs-vsctl add-port br0 eth0  # Connection to ds-01 
+sudo ovs-vsctl add-port br0 eth1  # Connection to ds-02
+
+# Assign Management IP address
+sudo ip addr flush dev eth15
+sudo ip addr add 10.0.10.106/24 dev br0
+sudo ip link set br0 up
+
+# Set Gateway to the Router Management VIP
+sudo ip route add default via 10.0.10.254
+```
+**karlo-cn-access-02 Bootstrap Config**
+```text
+# Create bridge and enable STP
+sudo ovs-vsctl add-br br0
+sudo ovs-vsctl set bridge br0 stp_enable=true
+
+# Add the uplinks to reach the Distro Layer
+sudo ovs-vsctl add-port br0 eth0  # Connection to ds-01
+sudo ovs-vsctl add-port br0 eth1  # Connection to ds-02
+
+# Assign Management IP address
+sudo ip addr flush dev eth1
+sudo ip addr add 10.0.10.107/24 dev br0
+sudo ip link set br0 up
+
+# Set Gateway to the Router Management VIP
+sudo ip route add default via 10.0.10.254
+```
+
 **Ansible Orchestration**  
 State-based configuration to manage:  
   ✅ Basic configuration such as system hostnames, compliance banners  
@@ -146,25 +194,30 @@ State-based configuration to manage:
 ℹ️**Hurdle 1:The "Virtual MLAG" Constraint**  
 Unlike physical enterprise switches (Cisco Nexus/Arista), the Open vSwitch (OVS) appliance in GNS3 does not natively support Multi-chassis Link Aggregation (mLAG).
 
-The Hurdle: 
+The Problem: 
 This meant a single router could not "bond" two links across two different switches.
 
 The Solution:  
 This necessitated a High-Availability Router-on-a-Stick (ROAS) design. Redundancy is handled at Layer 3 (VRRP) rather than Layer 2 (mLAG), ensuring that if a distribution switch fails, the entire routing path shifts to the secondary node.
 
 ℹ️**Hurdle 2:Control Plane Isolation**  
-The Hurdle:  
+The Problem:  
 Relying on the distro switches for router heartbeats introduced the risk of split-brain scenarios into the topology.
 
 The Solution:  
 The decision was made to create a dedicated point-to-point HA Link between rtr-01 and rtr-02 using a /30 subnet (10.0.70.0/30). This keeps the keep-alive traffic separate from production. The update of the IP table with the inclusion of the new subnet and ip addresses for the routers was needed.
 
-ℹ️**Hurdle 2: Multi-Tiered Redundancy Pathing**  
-The Challenge:  
+ℹ️**Hurdle 3: Multi-Tiered Redundancy Pathing**  
+The Problem:  
 Ensuring high availability from the Client to the Core without creating logical loops.
 
 The Solution:  
 I implemented a three-tier hierarchical design. Redundancy is achieved at Layer 2 via LACP Bonds between switches and at Layer 3 via VRRP Gateways on the VyOS Core. Explicitly tagging all infrastructure traffic and blackholing the native VLAN, created a hardened environment suitable for automated deployment.
+
+ℹ️**Hurdle 4: Management configuration for initial boostrap
+The Problem: Using eth15 on Access Switch 01 wa chosen as the entry point of the Ansible node. You would typically configure the interface as an access port with the specific VLAN for that device however, if I were to tag eth15 with vlan 10 now it would begin to tag that traffic which would need configuration at the router level to process this traffic.
+
+The solution: Adding the management interface and eth15 without a specific tag would allow me to treat this traffic as native or untagged, which would bypass the need now to have a device capable or routing tagged traffic. 
 
 ### 7. Security & Compliance Hardening
 
