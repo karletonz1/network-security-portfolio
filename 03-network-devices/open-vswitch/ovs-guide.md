@@ -20,7 +20,7 @@ Resources (Per Node):
 
 Management Access: SSH enabled with dedicated ansible service account.
 
-### 2. Network Topology & Interface Mapping
+### 2. Physical Topology
 
 **karlo-cn-ds-01** 
 | Device A port | Device B Device | Device B Hostname | Device B Port |
@@ -40,7 +40,13 @@ Management Access: SSH enabled with dedicated ansible service account.
 | eth15 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 15
 
 
-### 3. High Availability & Routing Logic
+
+### 2. Logical Topology
+
+
+
+
+### 4. High Availability & Routing Logic
 
   Gateway Redundancy:  
   This lab uses VRRP at the core routers.
