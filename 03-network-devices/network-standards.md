@@ -16,6 +16,7 @@ Subnets
 | 40 | DMZ | 10.0.40.0/24
 | 50 | Production Servers | 10.0.50.0/24 
 | 60 | Backups | 10.0.60.0/24
+| 70 | HA link | 10.0.70.0/30
 | 666 | Black Hole Sun | 
 
 ℹ️ **VLAN 666:** Used as a "Blackhole" Native VLAN for all trunk ports**
@@ -37,16 +38,19 @@ IP address Allocation (VRRP Gateways)
 This design utilizes RFC 5798 (VRRPv3). The .1 address in each subnet is a Virtual IP shared by a redundant pair of VyOS routers to ensure high availability for all gateway services.
 
 IP Address Allocation (Devices)
-| Hostname | Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role |
+| Hostname | Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role | Link type| 
 |----------|------|------------|---------|--------|---------|-----|------|
-| karlo-cn-rtr-01| eth0 | 10.0.10.1 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management |
-| karlo-cn-rtr-02| eth0 | 10.0.10.2 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management |
-| karlo-cn-ds-01| eth0 | 10.0.10.150 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
-| karlo-cn-ds-02| eth0 | 10.0.10.250 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
-| karlo-cn-fw-01| eth0 | 10.0.10.100 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
-| karlo-cn-fw-02| eth0 | 10.0.10.200 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
-| karlo-cn-esx-01| eth0/vmk0 | 10.0.10.3 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
-| karlo-cn-esx-02| eth0/vmk0 | 10.0.10.4 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port |
+| karlo-cn-rtr-01| eth | 10.0.10.1 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management | Access
+| karlo-cn-rtr-02| eth | 10.0.10.2 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management | Access 
+| karlo-cn-ds-01| eth0 | 10.0.10.150 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-ds-02| eth0 | 10.0.10.250 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-fw-01| eth0 | 10.0.10.100 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-fw-02| eth0 | 10.0.10.200 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-esx-01| eth0/vmk0 | 10.0.10.3 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-esx-02| eth0/vmk0 | 10.0.10.4 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-ansible| eth0 | 10.0.10.5 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-rtr-01| eth0 | 10.0.70.1 | 70 | 10.0.70.0/30 | PTP | 1500 | HA Link | Access
+| karlo-cn-rtr-02| eth0 | 10.0.70.2 | 70 | 10.0.70.0/30 | PTP | 1500 | HA Link | Access
 
 ℹ️**OOBM (Out-of-Band Management):**  
 Dedicated logical interface on the VyOS routers used exclusively for administrative traffic (SSH, SNMP, Syslog). This path is isolated from the data-plane LACP bonds to ensure          reachability during network contention.
