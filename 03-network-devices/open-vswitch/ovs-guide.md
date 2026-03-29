@@ -22,24 +22,29 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
+<img width="909" height="331" alt="image" src="https://github.com/user-attachments/assets/a90dd7bb-c6ce-42b2-b8ce-1af474971e04" />
 
 
 ### Interface Mapping
 
-| Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
-|-------------------|---------------|-----------------|-------------------|---------------|
-| karlo-cn-ds-01 | eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | port 1
-| karlo-cn-ds-01 | eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | port 2
-| karlo-cn-ds-01 | eth14 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 14
-| karlo-cn-ds-01 | eth15 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 15
+| Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
+|-----------------|-------------------|---------------|-----------------|-------------------|---------------|
+| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | eth1
+| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | eth2
+| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth5 | OVS Access Switch 01 | karlo-cn-access-01 | eth0
+| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth6 | OVS Access Switch 02 | karlo-cn-access-02 | eth0
+| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth14 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth14
+| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth15 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth15
 
 
-| Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
-|-------------------|---------------|-----------------|-------------------|---------------|
-| karlo-cn-ds-02 | eth1 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 1 
-| karlo-cn-ds-02 | eth2 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 2
-| karlo-cn-ds-02 | eth14 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 14
-| karlo-cn-ds-02 | eth15 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 15
+| Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
+|-----------------|-------------------|---------------|-----------------|-------------------|---------------|
+| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth1 | VyOS Core router 02 | karlo-cn-rtr-02 | eth1 
+| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth2 | VyOS Core router 02 | karlo-cn-rtr-02 | eth2
+| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth5 | OVS Access Switch 01 | karlo-cn-access-01 | eth1
+| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth6 | OVS Access Switch 02 | karlo-cn-access-02 | eth1
+| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth14 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth14
+| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth15 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth15
 
 
 
