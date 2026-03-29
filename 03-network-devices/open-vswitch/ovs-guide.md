@@ -27,8 +27,8 @@ Management Access: SSH enabled with dedicated ansible service account.
 |----------------------|-----------------|-------------------|---------------|
 | eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | port 1
 | eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | port 2
-| eth14 | OVS Distribution Switch 02 | karlo-cn-ds-02 | port 14
-| eth15 | OVS Distribution Switch 02 | karlo-cn-ds-02 | port 15
+| eth14 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 14
+| eth15 | OVS Distribution Switch 02 - LACP Peer Link | karlo-cn-ds-02 | port 15
 
 
 **karlo-cn-ds-02** 
@@ -36,8 +36,8 @@ Management Access: SSH enabled with dedicated ansible service account.
 |----------------------|-----------------|-------------------|---------------|
 | eth1 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 1 
 | eth2 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 2
-| eth14 | OVS Distribution Switch 01 | karlo-cn-ds-01 | port 14
-| eth15 | OVS Distribution Switch 01 | karlo-cn-ds-01 | port 15
+| eth14 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 14
+| eth15 | OVS Distribution Switch 01 - LACP Peer Link | karlo-cn-ds-01 | port 15
 
 
 ### 3. High Availability & Routing Logic
@@ -48,15 +48,15 @@ Management Access: SSH enabled with dedicated ansible service account.
   Link Aggregation:  
   The Router level utilizes LACP between karlo-cn-rtr-01/02 and karlo-cn-ds-01/02 using eth1 and eth2 for the LAG link. Trunk ports are configured for eth1/2 at the distribution switch end, and sub-interfaces are configured at the core router end. 
 
-  Dynamic Routing:  
-  OSPF is used in this lab for dynamic learning and distribution of routes.
+Trunking:  
+Trunk ports will be configured for eth1 and eth2. Vlan configuration for all vlans in the lab will also be configured.
 
 
 ### 5. Automation Workflow
 
 Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation.
 
-**karlo-cn-rtr-01 Config**
+**karlo-cn-ds-01 Config**
 ```text
 # 1. Create the logical bridge
 sudo ovs-vsctl add-br br0
@@ -75,7 +75,7 @@ sudo ip link set br0 up
 # 5. Set route to VyOS VIP and point to Ansible Node
 sudo ip route add default via 10.0.10.254
 ```
-**karlo-cn-rtr-02 Config**
+**karlo-cn-ds-02 Config**
 ```text
 # 1. Create the logical bridge
 sudo ovs-vsctl add-br br0
@@ -122,7 +122,7 @@ The Hurdle:
 Relying on the switching fabric for router heartbeats introduced the risk of "Split-Brain" scenarios during high broadcast traffic.
 
 The Solution:  
-A dedicated Point-to-Point HA Link was established between karlo-cn-rtr-01 and rtr-02 using a non-routable /30 subnet (169.254.255.0/30). This isolates the "Keep-Alive" traffic from the production data plane. The update of the IP table with the inclusion of the new subnet and ip addresses for the routers was needed.
+A dedicated Point-to-Point HA Link was established between karlo-cn-rtr-01 and rtr-02 using a non-routable /30 subnet (10.0.70.0/30). This isolates the "Keep-Alive" traffic from the production data plane. The update of the IP table with the inclusion of the new subnet and ip addresses for the routers was needed.
 
 
 ### 7. Security & Compliance Hardening
