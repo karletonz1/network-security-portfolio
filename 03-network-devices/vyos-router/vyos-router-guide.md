@@ -18,25 +18,58 @@ Resources (Per Node):
 
 Management Access: SSH enabled with dedicated ansible service account.
 
-### 2. Network Topology & Interface Mapping
+### 2. Physical Topology
 
-**karlo-cn-rtr-01** 
-| Device A port | Device B Device | Device B Hostname | Device B Port |
-|----------------------|-----------------|-------------------|---------------|
-| eth0 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 0
-| eth1 |  OVS Distribution switch 02 | karlo-cn-ds-02 | port 1
-| eth2 |	OVS Distribution switch 02 | karlo-cn-ds-02 | port 2
+### Interface Mapping
+
+<img width="556" height="170" alt="image" src="https://github.com/user-attachments/assets/e9377e3f-2453-46b7-834e-978f9d6fd589" />  
 
 
-**karlo-cn-rtr-02** 
-| Device A port | Device B Device | Device B Hostname | Device B Port |
-|----------------------|-----------------|-------------------|---------------|
-| eth0 |	VyOS Core router 01 | karlo-cn-rtr-01 | port 0
-| eth1 |	OVS Distribution switch 01 | karlo-cn-ds-01 | port 1 
-| eth2 |	OVS Distribution switch 01 | karlo-cn-ds-01 | port 2
+
+| Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
+|-----------------|-------------------|---------------|-----------------|-------------------|---------------|
+| VyOS Core router 01 | karlo-cn-rtr-01 | eth0 | VyOS Core router 02 | karlo-cn-rtr-02 | eth0
+| VyOS Core router 01 | karlo-cn-rtr-01 | eth1 | OVS Distribution switch 01 | karlo-cn-ds-01 | eth1
+| VyOS Core router 01 | karlo-cn-rtr-01 | eth2 | OVS Distribution switch 01 | karlo-cn-ds-01 | eth2
 
 
-### 3. High Availability & Routing Logic
+| Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
+|-----------------|-------------------|---------------|-----------------|-------------------|---------------|
+| VyOS Core router 02 | karlo-cn-rtr-02 | eth0 | VyOS Core router 01 | karlo-cn-rtr-01 | eth0
+| VyOS Core router 02 | karlo-cn-rtr-02 | eth1 | OVS Distribution switch 02 | karlo-cn-ds-02 | eth1
+| VyOS Core router 02 | karlo-cn-rtr-02 | eth2 | OVS Distribution switch 02 | karlo-cn-ds-02 | eth2
+
+### 3. Logical Topology
+<img width="921" height="340" alt="image" src="https://github.com/user-attachments/assets/c60535ff-4a38-4f1a-9d26-36a4b6cf6107" />
+
+### IP Address Allocation (Core Router Layer-VyOS)
+| Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway (VIP) | MTU | Role | Link type| 
+|----------|------|------------|---------|--------|---------|-----|------|----------|
+| karlo-cn-rtr-01| eth0 | 10.0.70.1 | 70 | 10.0.70.0/30 | PTP | 1500 | Dedicated HA link | Trunk
+| karlo-cn-rtr-01| eth1/2:Bond0.10 | 10.0.10.1 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Gateway for Infra-MGT Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.11 | 10.0.11.1 | 11 | 10.0.11.0/24 | 10.0.11.254 | 1500 | Gateway for SVR-MGT Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.20 | 10.0.20.1 | 20 | 10.0.20.0/24 | 10.0.20.254 | 1500 | Gateway for WIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.21 | 10.0.21.1 | 21 | 10.0.21.0/24 | 10.0.21.254 | 1500 | Gateway for LIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.30 | 10.0.30.1 | 30 | 10.0.30.0/24 | 10.0.30.254 | 1500 | Gateway for SEC-APPS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.40 | 10.0.40.1 | 40 | 10.0.40.0/24 | 10.0.40.254 | 1500 | Gateway for DMZ Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.50 | 10.0.50.1 | 50 | 10.0.50.0/24 | 10.0.50.254 | 1500 | Gateway for PRD-SVR Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.60 | 10.0.60.1 | 60 | 10.0.60.0/24 | 10.0.60.254 | 1500 | Gateway for BACKUPS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth0 | 10.0.70.2 | 70 | 10.0.70.0/30 | PTP | 1500 | Dedicated HA link  | Trunk
+| karlo-cn-rtr-02| eth1/2:Bond0.10 | 10.0.10.2| 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Gateway for Infra-MGT Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.11 | 10.0.11.2| 11 | 10.0.11.0/24 | 10.0.11.254 | 1500 | Gateway for SVR-MGT Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.20 | 10.0.20.2| 20 | 10.0.20.0/24 | 10.0.20.254 | 1500 | Gateway for WIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.21 | 10.0.21.2| 21 | 10.0.21.0/24 | 10.0.21.254 | 1500 | Gateway for LIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.30 | 10.0.30.2| 30 | 10.0.30.0/24 | 10.0.30.254 | 1500 | Gateway for SEC-APPS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.40 | 10.0.40.2| 40 | 10.0.40.0/24 | 10.0.40.254 | 1500 | Gateway for DMZ Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.50 | 10.0.50.2| 50 | 10.0.50.0/24 | 10.0.50.254 | 1500 | Gateway for PRD-SVR Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.60 | 10.0.60.2| 60 | 10.0.60.0/24 | 10.0.60.254 | 1500 | Gateway for BACKUPS Subnet| Sub-interface
+
+
+
+
+
+
+### 4. High Availability & Routing Logic
 
   Gateway Redundancy:  
   This lab uses VRRP at the core routers via sub-interfaces.
