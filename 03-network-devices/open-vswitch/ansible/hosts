@@ -14,3 +14,5 @@ ovs_access
 ansible_user=root
 ansible_connection=network_cli
 ansible_network_os=linux
+
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
