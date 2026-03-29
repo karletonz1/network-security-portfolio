@@ -22,8 +22,7 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
-<img width="916" height="416" alt="image" src="https://github.com/user-attachments/assets/bb0c4f73-468c-40eb-9c4e-cb6f1edf36e2" />
-
+<img width="881" height="412" alt="image" src="https://github.com/user-attachments/assets/a1fd257b-8b3c-4bce-90b9-5668ccf8c5c2" />
 
 ### Interface Mapping
 
@@ -55,7 +54,7 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Logical Topology
 
-<img width="1171" height="519" alt="image" src="https://github.com/user-attachments/assets/1e53f52b-435b-4854-bee1-dbb13cd88865" />
+<img width="1163" height="653" alt="image" src="https://github.com/user-attachments/assets/7e6cf077-2704-439c-998b-88ce8f16adba" />
 
 ### IP Address Allocation (Distribution Switch Layer-OVS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
