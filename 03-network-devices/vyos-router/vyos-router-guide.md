@@ -1,6 +1,6 @@
 # VyOS Core Router Deployment Guide
 
-This section documents the deployment and automation of the Core Routing layer for the Karlo-CN Infrastructure. These routers handle the L3 boundary between the internal distribution layer and the security perimeter. 
+This section documents the deployment and automation of the Core Routing layer for the North Star Infrastructure. These routers handle the L3 boundary between the internal distribution layer and the security perimeter. 
 
 ### 1. Prerequisites & Node Specification
 
