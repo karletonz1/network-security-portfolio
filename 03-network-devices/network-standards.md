@@ -25,41 +25,95 @@ IP address Allocation (VRRP Gateways)
 
 | Vlan ID | Vlan Name | Subnet | VRRP IP (GW) | MTU | Primary Nodes |  
 |---------|-----------|--------|--------------|-----|---------------|
-| 10| NET-MGMT	| 10.0.10.0/24 | 	10.0.10.254 |	1500 |	VyOS, OPNsense, OVS, Ansible Node, ESXi Host
-| 11 | SRV-MGMT |	10.0.11.0/24 |	10.0.11.254 |	1500 |	Hypervisor Host, Veeam, VM Consoles, Domain Controllers 
+| 10 | INFRA-MGMT	| 10.0.10.0/24 | 	10.0.10.254 |	1500 |	VyOS, OPNsense, OVS, Ansible
+| 11 | SRV-MGMT |	10.0.11.0/24 |	10.0.11.254 |	1500 |	Proxmox Host, Veeam, Domain Controllers 
 | 20 |	WIN-CLIENTS |	10.0.20.0/24 |	10.0.20.254 |	1500 |	Windows 10 Workstations 
 | 21 |	LIN-CLIENTS |	10.0.21.0/24 |	10.0.21.254 |	1500 |	Ubuntu Workstations 
 | 30 | 	SEC-APPS |	10.0.30.0/24 |	10.0.30.254 |	1500 |	Wazuh Manager, Splunk, Tenable, Kali Linux
 | 40 |	DMZ |	10.0.40.0/24 |	10.0.40.254 |	1500 |	Apache & IIS Web Servers
-| 50 | 	PRD-SVRS |	10.0.50.0/24 |	10.0.50.254	| 1500 |	Simulated App Servers
+| 50 | 	PRD-SVRS |	10.0.50.0/24 |	10.0.50.254	| 1500 |	Simulated App Servers (Proxmox)
 | 60 | BACKUPS | 10.0.60.0/24 | 10.0.60.254 | 1500 | Veeam Backups
 | 666 |	NATIVE |	NONE |	N/A |	1500 |	Unused Ports (Security Blackhole)
 
-This design utilizes RFC 5798 (VRRPv3). The .1 address in each subnet is a Virtual IP shared by a redundant pair of VyOS routers to ensure high availability for all gateway services.
+ℹ️ GNS3 Virtualization  
+While physical hardware often includes a dedicated management port, the GNS3 environment utilizes standard Ethernet interfaces. To replicate production environments, VLAN 10 has been designated as the Management VLAN. All administrative traffic (SSH, SNMP, Ansible) is logically isolated into this VLAN, to separate management traffic from production traffic.
 
-IP Address Allocation (Devices)
-| Hostname | Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role | Link type| 
-|----------|------|------------|---------|--------|---------|-----|------|
-| karlo-cn-rtr-01| eth | 10.0.10.1 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management | Access
-| karlo-cn-rtr-02| eth | 10.0.10.2 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | OOBM Management | Access 
-| karlo-cn-ds-01| eth0 | 10.0.10.150 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-ds-02| eth0 | 10.0.10.250 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-fw-01| eth0 | 10.0.10.100 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-fw-02| eth0 | 10.0.10.200 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-esx-01| eth0/vmk0 | 10.0.10.3 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-esx-02| eth0/vmk0 | 10.0.10.4 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-ansible| eth0 | 10.0.10.5 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
-| karlo-cn-rtr-01| eth0 | 10.0.70.1 | 70 | 10.0.70.0/30 | PTP | 1500 | HA Link | Access
-| karlo-cn-rtr-02| eth0 | 10.0.70.2 | 70 | 10.0.70.0/30 | PTP | 1500 | HA Link | Access
+### IP Address Allocation (Firewall Layer-OPNSENSE)
+| Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role | Link type| 
+|----------|------|------------|---------|--------|---------|-----|------|----------|
+| karlo-cn-fw-01| eth0 | 10.0.10.10 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
+| karlo-cn-fw-02| eth0 | 10.0.10.20 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Management Port | Access
 
-ℹ️**OOBM (Out-of-Band Management):**  
-Dedicated logical interface on the VyOS routers used exclusively for administrative traffic (SSH, SNMP, Syslog). This path is isolated from the data-plane LACP bonds to ensure          reachability during network contention.
+### IP Address Allocation (Core Router Layer-VyOS)
+| Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway (VIP) | MTU | Role | Link type| 
+|----------|------|------------|---------|--------|---------|-----|------|----------|
+| karlo-cn-rtr-01| eth0 | 10.0.70.1 | 70 | 10.0.70.0/30 | PTP | 1500 | Dedicated HA link | Trunk
+| karlo-cn-rtr-01| eth1/2:Bond0.10 | 10.0.10.1 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Gateway for Infra-MGT Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.11 | 10.0.11.1 | 11 | 10.0.11.0/24 | 10.0.11.254 | 1500 | Gateway for SRV-MGT Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.20 | 10.0.20.1 | 20 | 10.0.20.0/24 | 10.0.20.254 | 1500 | Gateway for WIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.21 | 10.0.21.1 | 21 | 10.0.21.0/24 | 10.0.21.254 | 1500 | Gateway for LIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.30 | 10.0.30.1 | 30 | 10.0.30.0/24 | 10.0.30.254 | 1500 | Gateway for SEC-APPS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.40 | 10.0.40.1 | 40 | 10.0.40.0/24 | 10.0.40.254 | 1500 | Gateway for DMZ Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.50 | 10.0.50.1 | 50 | 10.0.50.0/24 | 10.0.50.254 | 1500 | Gateway for PRD-SRVS Subnet| Sub-interface
+| karlo-cn-rtr-01| eth1/2:Bond0.60 | 10.0.60.1 | 60 | 10.0.60.0/24 | 10.0.60.254 | 1500 | Gateway for BACKUPS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth0 | 10.0.70.2 | 70 | 10.0.70.0/30 | PTP | 1500 | Dedicated HA link  | Trunk
+| karlo-cn-rtr-02| eth1/2:Bond0.10 | 10.0.10.2| 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Gateway for Infra-MGT Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.11 | 10.0.11.2| 11 | 10.0.11.0/24 | 10.0.11.254 | 1500 | Gateway for SRV-MGT Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.20 | 10.0.20.2| 20 | 10.0.20.0/24 | 10.0.20.254 | 1500 | Gateway for WIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.21 | 10.0.21.2| 21 | 10.0.21.0/24 | 10.0.21.254 | 1500 | Gateway for LIN-CLIENTS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.30 | 10.0.30.2| 30 | 10.0.30.0/24 | 10.0.30.254 | 1500 | Gateway for SEC-APPS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.40 | 10.0.40.2| 40 | 10.0.40.0/24 | 10.0.40.254 | 1500 | Gateway for DMZ Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.50 | 10.0.50.2| 50 | 10.0.50.0/24 | 10.0.50.254 | 1500 | Gateway for PRD-SRVS Subnet| Sub-interface
+| karlo-cn-rtr-02| eth1/2:Bond0.60 | 10.0.60.2| 60 | 10.0.60.0/24 | 10.0.60.254 | 1500 | Gateway for BACKUPS Subnet| Sub-interface
 
-ℹ️**Management Port:**  
-Physical management interfaces on the OPNsense firewalls and Open vSwitch (OVS) nodes. These ports provide access to the WebGUI and Control Plane, isolated from the production transit and client VLANs.
+### IP Address Allocation (Distribution Switch Layer-OVS)
+| Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
+|----------|-----------|-------------------|-------------|------|----------|
+| karlo-cn-ds-01| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-01| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-01| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
+| karlo-cn-ds-01| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
+| karlo-cn-ds-01| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
+| karlo-cn-ds-01| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
+| karlo-cn-ds-02| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-02| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-02| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
+| karlo-cn-ds-02| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
+| karlo-cn-ds-02| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
+| karlo-cn-ds-02| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
 
-ℹ️ **Notation:**  
-The Port/Interface column displays the physical GNS3 port followed by the logical OS interface (e.g., eth0/vmk0). This ensures alignment between the virtual lab topology and the internal hypervisor configuration.
+### IP Address Allocation (Access Switch Layer-OVS)
+| Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
+|----------|-----------|-------------------|-------------|------|----------|
+| karlo-cn-access-01| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
+| karlo-cn-access-01| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+| karlo-cn-access-02| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
+| karlo-cn-access-02| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+
+### IP Address Allocation (Servers-Proxmox)
+| Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role | Link type|
+|----------|------|------------|---------|--------|---------|-----|------|----------|
+| karlo-cn-esx-01| eth0/vmk0 | 10.0.50.1 | 50 | 10.0.50.0/24 | 10.0.50.254 | 1500 | Uplink to Access Switch 01 | Access
+| karlo-cn-esx-02| eth0/vmk0 | 10.0.50.2 | 50 | 10.0.50.0/24 | 10.0.50.254 | 1500 | Uplink to Access Switch 02 | Access
+
+### IP Address Allocation (Clients)
+| Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role | Link type| 
+|----------|------|------------|---------|--------|---------|-----|------|----------|
+| karlo-cn-ansible| eth0 | 10.0.10.253 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | Uplink to Access Switch 01 | Access
+
+### IP Address Allocation (IP Management-All Devices)
+| Hostname | IP Address | Vlan ID | Subnet | Gateway | MTU | Role |
+|----------|------------|---------|--------|---------|-----|------|
+| karlo-cn-fw-01 | 10.0.10.100 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-fw-02 | 10.0.10.101 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-rtr-01 | 10.0.10.102 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-rtr-02 | 10.0.10.103 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-ds-01 | 10.0.10.104 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-ds-02 | 10.0.10.105 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-access-01 | 10.0.10.106 | 10 | 10.0.10.0/24   | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-access-02 | 10.0.10.107 | 10 | 10.0.10.0/24   | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-ansible | 10.0.10.253 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+
 
 
 Service & Port Map
