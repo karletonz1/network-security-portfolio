@@ -22,7 +22,8 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
-<img width="909" height="331" alt="image" src="https://github.com/user-attachments/assets/a90dd7bb-c6ce-42b2-b8ce-1af474971e04" />
+<img width="916" height="416" alt="image" src="https://github.com/user-attachments/assets/bb0c4f73-468c-40eb-9c4e-cb6f1edf36e2" />
+
 
 ### Interface Mapping
 
@@ -34,6 +35,9 @@ Management Access: SSH enabled with dedicated ansible service account.
 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth6 | OVS Access Switch 02 | karlo-cn-access-02 | eth0
 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth14 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth14
 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth15 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth15
+| OVS Access Switch 01 | karlo-cn-access-01 | eth0 | OVS Distribution Switch 01 | karlo-cn-ds01 | eth5
+| OVS Access Switch 01 | karlo-cn-access-01 | eth1 | OVS Distribution Switch 02 | karlo-cn-ds02 | eth5
+| OVS Access Switch 01 | karlo-cn-access-01 | eth15 | Linux Ansible Host | karlo-cn-ansible | eth15
 
 
 | Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
@@ -44,6 +48,8 @@ Management Access: SSH enabled with dedicated ansible service account.
 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth6 | OVS Access Switch 02 | karlo-cn-access-02 | eth1
 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth14 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth14
 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth15 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth15
+| OVS Access Switch 02 | karlo-cn-access-02 | eth0 | OVS Distribution Switch 01 | karlo-cn-ds01 | eth6
+| OVS Access Switch 02 | karlo-cn-access-02 | eth1 | OVS Distribution Switch 02 | karlo-cn-ds02 | eth6
 
 
 
@@ -72,8 +78,10 @@ Management Access: SSH enabled with dedicated ansible service account.
 |----------|-----------|-------------------|-------------|------|----------|
 | karlo-cn-access-01| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
 | karlo-cn-access-01| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+| karlo-cn-access-01| eth15 | - | All | Ansible uplink to Access Switch 01 | Trunk
 | karlo-cn-access-02| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
 | karlo-cn-access-02| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+
 
 ### 4. High Availability & Routing Logic
 
