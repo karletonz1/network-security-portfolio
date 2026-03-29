@@ -1,6 +1,6 @@
 # Open vSwitch Deployment Guide
 
-This section documents the deployment and automation of the Distribution Switch layer using Open vSwitches for the North Star Infrastructure. These switches are use to simulate the aggregation layer, but it is mainly used as a layer 2 tool for the distribution and access layers. There are mLAG limitations of these switches within GN3 which necessitated a design choice of redundant pathing across all layers, with a single HA link between the routers but running VRRP in a ROAS topology.
+This section documents the deployment and automation of the Distribution Switch layer using Open vSwitches for the North Star Infrastructure. These switches are used to simulate the aggregation layer, but it is mainly used as a layer 2 tool for the distribution and access layers. There are mLAG limitations of these switches within GN3 which necessitated a design choice of redundant pathing across all layers, with a single HA link between the routers but running VRRP in a ROAS topology.
 
 ### 1. Prerequisites & Node Specification
 
