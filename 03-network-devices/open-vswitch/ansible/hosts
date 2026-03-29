@@ -1,12 +1,16 @@
-[ovs_distribution]
-karlo-cn-ds-01 ansible_host=10.0.0.150
-karlo-cn-ds-02 ansible_host=10.0.0.250
+[ovs_distro]
+karlo-cn-ds-01      ansible_host=10.0.10.104
+karlo-cn-ds-02      ansible_host=10.0.10.105
 
-[ovs_distribution:vars]
-# Standard Management Credentials
-ansible_user=admin
-ansible_password=admin
+[ovs_access]
+karlo-cn-access-01  ansible_host=10.0.10.106
+karlo-cn-access-02  ansible_host=10.0.10.107
 
-# Connection Settings
+[ovs_switches:children]
+ovs_distro
+ovs_access
+
+[ovs_switches:vars]
+ansible_user=root
 ansible_connection=network_cli
 ansible_network_os=linux
