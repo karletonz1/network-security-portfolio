@@ -22,7 +22,8 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
-<img width="881" height="412" alt="image" src="https://github.com/user-attachments/assets/a1fd257b-8b3c-4bce-90b9-5668ccf8c5c2" />
+<img width="877" height="410" alt="image" src="https://github.com/user-attachments/assets/697b6470-c3bc-45db-a3dc-f6f96c2252f2" />
+
 
 ### Interface Mapping
 
@@ -100,88 +101,100 @@ Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansibl
 
 **karlo-cn-ds-01 Bootstrap Config**
 ```text
+# Ensure a clean OVS node to prevent errors about bridge br0 already existing
+ovs-vsctl del-br br0
+
 # Create bridge and enable STP
-sudo ovs-vsctl add-br br0
-sudo ovs-vsctl set bridge br0 stp_enable=true
+ovs-vsctl add-br br0
+ovs-vsctl set bridge br0 stp_enable=true
 
 # Add eth5 (The downlink to Access-01) for initial bootstrap reachability
-sudo ovs-vsctl add-port br0 eth5
+ovs-vsctl add-port br0 eth5
 
 # Add the first peer link
-sudo ovs-vsctl add-port br0 eth14
+ovs-vsctl add-port br0 eth14
 
 # Add the second peer link
-sudo ovs-vsctl add-port br0 eth15
+ovs-vsctl add-port br0 eth15
 
 # Assign Management IP address
-sudo ip addr flush dev eth5
-sudo ip addr add 10.0.10.104/24 dev br0
-sudo ip link set br0 up
+ip addr flush dev eth5
+ip addr add 10.0.10.104/24 dev br0
+ip link set br0 up
 
 # Set Gateway to the Router Management VIP
-sudo ip route add default via 10.0.10.254
+ip route add default via 10.0.10.254
 ```
 **karlo-cn-ds-02 Bootstrap Config**
 ```text
+# Ensure a clean OVS node to prevent errors about bridge br0 already existing
+ovs-vsctl del-br br0
+
 # Create bridge and enable STP
-sudo ovs-vsctl add-br br0
-sudo ovs-vsctl set bridge br0 stp_enable=true
+ovs-vsctl add-br br0
+ovs-vsctl set bridge br0 stp_enable=true
 
 # Add eth6 (The downlink to Access-02) for initial bootstrap reachability
-sudo ovs-vsctl add-port br0 eth6
+ovs-vsctl add-port br0 eth6
 
 # Add the first peer link
-sudo ovs-vsctl add-port br0 eth14
+ovs-vsctl add-port br0 eth14
 
 # Add the second peer link
-sudo ovs-vsctl add-port br0 eth15
+ovs-vsctl add-port br0 eth15
 
 # Assign Management IP address
-sudo ip addr flush dev eth6
-sudo ip addr add 10.0.10.105/24 dev br0
-sudo ip link set br0 up
+ip addr flush dev eth6
+ip addr add 10.0.10.105/24 dev br0
+ip link set br0 up
 
 # Set Gateway to the Router Management VIP
-sudo ip route add default via 10.0.10.254
+ip route add default via 10.0.10.254
 ```
 **karlo-cn-access-01 Bootstrap Config**
 ```text
+# Ensure a clean OVS node to prevent errors about bridge br0 already existing
+ovs-vsctl del-br br0
+
 # Create bridge and enable STP
-sudo ovs-vsctl add-br br0
-sudo ovs-vsctl set bridge br0 stp_enable=true
+ovs-vsctl add-br br0
+ovs-vsctl set bridge br0 stp_enable=true
 
 # Add eth15 (The link to Ansible node)
-sudo ovs-vsctl add-port br0 eth15
+ovs-vsctl add-port br0 eth15
 
 # Add the uplinks to reach the Distro Layer
-sudo ovs-vsctl add-port br0 eth0  # Connection to ds-01 
-sudo ovs-vsctl add-port br0 eth1  # Connection to ds-02
+ovs-vsctl add-port br0 eth0  # Connection to ds-01 
+ovs-vsctl add-port br0 eth1  # Connection to ds-02
 
 # Assign Management IP address
-sudo ip addr flush dev eth15
-sudo ip addr add 10.0.10.106/24 dev br0
-sudo ip link set br0 up
+ip addr flush dev eth15
+ip addr add 10.0.10.106/24 dev br0
+ip link set br0 up
 
 # Set Gateway to the Router Management VIP
-sudo ip route add default via 10.0.10.254
+ip route add default via 10.0.10.254
 ```
 **karlo-cn-access-02 Bootstrap Config**
 ```text
+# Ensure a clean OVS node to prevent errors about bridge br0 already existing
+ovs-vsctl del-br br0
+
 # Create bridge and enable STP
-sudo ovs-vsctl add-br br0
-sudo ovs-vsctl set bridge br0 stp_enable=true
+ovs-vsctl add-br br0
+ovs-vsctl set bridge br0 stp_enable=true
 
 # Add the uplinks to reach the Distro Layer
-sudo ovs-vsctl add-port br0 eth0  # Connection to ds-01
-sudo ovs-vsctl add-port br0 eth1  # Connection to ds-02
+ovs-vsctl add-port br0 eth0  # Connection to ds-01
+ovs-vsctl add-port br0 eth1  # Connection to ds-02
 
 # Assign Management IP address
-sudo ip addr flush dev eth1
-sudo ip addr add 10.0.10.107/24 dev br0
-sudo ip link set br0 up
+ip addr flush dev eth1
+ip addr add 10.0.10.107/24 dev br0
+ip link set br0 up
 
 # Set Gateway to the Router Management VIP
-sudo ip route add default via 10.0.10.254
+ip route add default via 10.0.10.254
 ```
 
 **Ansible Orchestration**  
@@ -221,10 +234,30 @@ Ensuring high availability from the Client to the Core without creating logical 
 The Solution:  
 I implemented a three-tier hierarchical design. Redundancy is achieved at Layer 2 via LACP Bonds between switches and at Layer 3 via VRRP Gateways on the VyOS Core. Explicitly tagging all infrastructure traffic and blackholing the native VLAN, created a hardened environment suitable for automated deployment.
 
-ℹ️**Hurdle 4: Management configuration for initial boostrap
-The Problem: Using eth15 on Access Switch 01 wa chosen as the entry point of the Ansible node. You would typically configure the interface as an access port with the specific VLAN for that device however, if I were to tag eth15 with vlan 10 now it would begin to tag that traffic which would need configuration at the router level to process this traffic.
+ℹ️**Hurdle 4: Management configuration for initial boostrap  
+The Problem:  
+Using eth15 on Access Switch 01 wa chosen as the entry point of the Ansible node. You would typically configure the interface as an access port with the specific VLAN for that device however, if I were to tag eth15 with vlan 10 now it would begin to tag that traffic which would need configuration at the router level to process this traffic.
 
-The solution: Adding the management interface and eth15 without a specific tag would allow me to treat this traffic as native or untagged, which would bypass the need now to have a device capable or routing tagged traffic. 
+The solution:  
+Adding the management interface and eth15 without a specific tag would allow me to treat this traffic as native or untagged, which would bypass the need now to have a device capable or routing tagged traffic. 
+
+ℹ️**Hurdle 5: Permission Assumptions  
+Problem:  
+I assumed tunning sudo commands was always required, but on a native root terminal it resulted in command not found and too many errors.  
+
+<img width="317" height="181" alt="image" src="https://github.com/user-attachments/assets/4023a10f-0ade-4cfb-8dd7-05d402aa183e" />
+
+Solution:  
+I stripped sudo prefixes from the initial bootstrap config to match the environment of the GNS3 OVS appliance to prevent the errors from occuring.
+
+ℹ️**Hurdle 6: OVS/GNS3 Nuances  
+Problem:  
+Even with the Sudo command removed from the bootstrap configuration, a brand new OVS node would still say the it cannot create a bridge because it already exists.  
+
+<img width="690" height="274" alt="image" src="https://github.com/user-attachments/assets/1f3a0c0b-69e7-4230-949d-ed60bed77451" />
+
+Solution:  
+I needed to find the command that would essentially reset the device and add this command as the first step for the bootstrap configs. The command was ```ovs-vsctl del-br br0```
 
 ### 7. Security & Compliance Hardening
 
@@ -254,7 +287,10 @@ An authentication order will be configured via Pluggable Authentication Modules:
 ### 8. Verification Commands
 
 Useful CLI commands for validating the state of this layer:
-- sudo ovs-appctl bond/show - shows exactly which physical interfaces are active in the bond and LACP negotiation status
-- sudo ovs-vsctl list port - Confirms that your ports are correctly assigned to the intended VLAN trunks
-- sudo ovs-appctl stp/show - Shows the STP state of every port
-- sudo ovs-appctl fdb/show br0 - Displays the MAC table
+- ```ovs-appctl bond/show``` - shows exactly which physical interfaces are active in the bond and LACP negotiation status
+- ```ovs-vsctl list port``` - Confirms that your ports are correctly assigned to the intended VLAN trunks
+- ```ovs-appctl stp/show``` - Shows the STP state of every port
+- ```ovs-appctl fdb/show br0``` - Displays the MAC table
+- ```ip addr show br0``` - You should see this to verify bootstrap configuration success <img width="639" height="116" alt="image" src="https://github.com/user-attachments/assets/163ad77d-d621-4714-91b8-201225e732be" />
+
+
