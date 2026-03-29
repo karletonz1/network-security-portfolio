@@ -40,7 +40,8 @@ Management Access: SSH enabled with dedicated ansible service account.
 | VyOS Core router 02 | karlo-cn-rtr-02 | eth2 | OVS Distribution switch 02 | karlo-cn-ds-02 | eth2
 
 ### 3. Logical Topology
-<img width="921" height="340" alt="image" src="https://github.com/user-attachments/assets/c60535ff-4a38-4f1a-9d26-36a4b6cf6107" />
+<img width="925" height="336" alt="image" src="https://github.com/user-attachments/assets/cf55f0cd-82b0-4f55-9f14-db4f79c4c323" />
+
 
 ### IP Address Allocation (Core Router Layer-VyOS)
 | Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway (VIP) | MTU | Role | Link type| 
@@ -86,20 +87,21 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 5. Automation Workflow
 
-Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation.
+Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation. Since it is a ROAS design, this temporary configuration will allow ansible to push the playbook to configure the router and move the 10.0.10.x IP addresses to the bond0.10 sub-interface.
 
 **karlo-cn-rtr-01 Config**
 ```text
 configure
 
-# Set the management IP (eth0 is the link to karlo-cn-ds-01)
-set interfaces ethernet eth0 address 10.0.10.1/24 
+# Use eth1 for initial bootstrap
+# We must tag this for VLAN 10 (INFRA-MGMT) to reach the Ansible node
+set interfaces ethernet eth1 vif 10 address 10.0.10.102/24
 
 # Enable SSH for Ansible access
 set service ssh port 22
 
-# Create a dedicated 'ansible' user for the playbooks
-set system login user ansible authentication plaintext-password 'ansible'
+# Create a dedicated user called Ansible for the playbooks
+set system login user ansible authentication plaintext-password ansible
 set system login user ansible level admin
 
 commit
@@ -110,14 +112,15 @@ exit
 ```text
 configure
 
-# Set the management IP (eth0 is the link to karlo-cn-ds-02)
-set interfaces ethernet eth0 address 10.0.10.2/24 
+# Use eth1 for initial bootstrap
+# We must tag this for VLAN 10 (INFRA-MGMT) to reach the Ansible node
+set interfaces ethernet eth1 vif 10 address 10.0.10.103/24
 
 # Enable SSH for Ansible access
 set service ssh port 22
 
-# Create a dedicated 'ansible' user for the playbooks
-set system login user ansible authentication plaintext-password 'ansible'
+# Create a dedicated user called Ansible for the playbooks
+set system login user ansible authentication plaintext-password ansible
 set system login user ansible level admin
 
 commit
@@ -137,14 +140,19 @@ State-based configuration to manage:
 
 ### 6. Deployment Hurdles & Pivots
 
-ℹ️**Hurdle 1:**  
+ℹ️**Hurdle 1:**  The Physical Connectivity Problem
 During the initial build i had initially wanted to start with the VyOS routers and to configure them via Anisble at the same time. A physical constraint was identified where the Ansible node possessed only a single eth0 interface.
 
 The Problem:  
 The Automation node lacked direct physical connectivity to both Routers' management interfaces at the same time.
 
 The Solution:  
-The deployment order was pivoted to prioritize the Open vSwitch (OVS) device configuration first. Establishing the Network Management VLAN (VLAN 10) on the switches first ensured a stable "Control Plane" path for Ansible to reach the VyOS routers in order to configure them at the same time.
+The deployment order was pivoted to prioritize the OVS device configuration first. Establishing the Network Management VLAN on the switches first ensured a path for Ansible to reach the routers in order to configure them both at the same time.
+
+ℹ️**Hurdle 2:**  The Logical Connectivity Problem
+The Problem: Without a dedicated OOB port, bootstrapping a router through a trunked switch created a chicken-before-the-egg problem.
+
+The Solution: A temporary bootstrap configration was needed to bypass the challenges of virtualizing this network. By manually tagging VLAN 10 on a single physical member of the future bond (eth1), a temporary management link, through the switch network, would be established. This allows Ansible to reach the node and perform the transition to the final configuration.
 
 ### 7. Security & Compliance Hardening
 
