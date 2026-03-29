@@ -196,7 +196,14 @@ ip link set br0 up
 # Set Gateway to the Router Management VIP
 ip route add default via 10.0.10.254
 ```
+**karlo-cn-ansible Bootstrap Config**
+```text
+# 1. Assign the IP and bring the interface up
+ifconfig eth0 10.0.10.253 netmask 255.255.255.0 up
 
+# 2. Add the default gateway
+route add default gw 10.0.10.254
+```
 **Ansible Orchestration**  
 State-based configuration to manage:  
   ✅ Basic configuration such as system hostnames, compliance banners  
@@ -251,13 +258,20 @@ Solution:
 I stripped sudo prefixes from the initial bootstrap config to match the environment of the GNS3 OVS appliance to prevent the errors from occuring.
 
 ℹ️**Hurdle 6: OVS/GNS3 Nuances  
-Problem:  
-Even with the Sudo command removed from the bootstrap configuration, a brand new OVS node would still say the it cannot create a bridge because it already exists.  
+The Problem:  
+Even with the Sudo command removed from the bootstrap configuration, a brand new OVS node would still say that it cannot create a bridge because it already exists.  
 
 <img width="690" height="274" alt="image" src="https://github.com/user-attachments/assets/1f3a0c0b-69e7-4230-949d-ed60bed77451" />
 
-Solution:  
+The Solution:  
 I needed to find the command that would essentially reset the device and add this command as the first step for the bootstrap configs. The command was ```ovs-vsctl del-br br0```
+
+ℹ️**Hurdle 7: Ansible Host Bootstrapping  
+The Problem:   
+I discovered that ping commands were not working from the Ansible host. After some research i discovered that configuration was needed on the Linux host similar to configuring an ipv4 address on a Windows machine if you're not using DHCP.
+
+The Solution:  
+I verified the commands needed to be added to the boostrap configuration for the Linux host running Ansible.
 
 ### 7. Security & Compliance Hardening
 
@@ -286,11 +300,14 @@ An authentication order will be configured via Pluggable Authentication Modules:
 
 ### 8. Verification Commands
 
-Useful CLI commands for validating the state of this layer:
+Useful CLI commands for validating the state on any OVS:
 - ```ovs-appctl bond/show``` - shows exactly which physical interfaces are active in the bond and LACP negotiation status
 - ```ovs-vsctl list port``` - Confirms that your ports are correctly assigned to the intended VLAN trunks
 - ```ovs-appctl stp/show``` - Shows the STP state of every port
 - ```ovs-appctl fdb/show br0``` - Displays the MAC table
 - ```ip addr show br0``` - You should see this to verify bootstrap configuration success <img width="639" height="116" alt="image" src="https://github.com/user-attachments/assets/163ad77d-d621-4714-91b8-201225e732be" />
+- ```ping -c 5 (IP Addres)``` - Confirms that your ansible host can reach all four OVS switches after successfully configuring the bootstrap configurations  
+<img width="447" height="552" alt="image" src="https://github.com/user-attachments/assets/67eabd73-f516-4e89-9333-89f8b6f300e8" />
+
 
 
