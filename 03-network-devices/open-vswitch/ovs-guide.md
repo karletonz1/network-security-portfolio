@@ -24,7 +24,6 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 <img width="909" height="331" alt="image" src="https://github.com/user-attachments/assets/a90dd7bb-c6ce-42b2-b8ce-1af474971e04" />
 
-
 ### Interface Mapping
 
 | Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
@@ -50,8 +49,31 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Logical Topology
 
+<img width="1171" height="519" alt="image" src="https://github.com/user-attachments/assets/1e53f52b-435b-4854-bee1-dbb13cd88865" />
 
+### IP Address Allocation (Distribution Switch Layer-OVS)
+| Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
+|----------|-----------|-------------------|-------------|------|----------|
+| karlo-cn-ds-01| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-01| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-01| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
+| karlo-cn-ds-01| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
+| karlo-cn-ds-01| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
+| karlo-cn-ds-01| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
+| karlo-cn-ds-02| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-02| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-ds-02| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
+| karlo-cn-ds-02| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
+| karlo-cn-ds-02| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
+| karlo-cn-ds-02| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
 
+### IP Address Allocation (Access Switch Layer-OVS)
+| Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
+|----------|-----------|-------------------|-------------|------|----------|
+| karlo-cn-access-01| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
+| karlo-cn-access-01| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+| karlo-cn-access-02| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
+| karlo-cn-access-02| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
 
 ### 4. High Availability & Routing Logic
 
