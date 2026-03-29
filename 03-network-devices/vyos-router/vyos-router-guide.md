@@ -23,31 +23,32 @@ Management Access: SSH enabled with dedicated ansible service account.
 **karlo-cn-rtr-01** 
 | Device A port | Device B Device | Device B Hostname | Device B Port |
 |----------------------|-----------------|-------------------|---------------|
-| eth0 |	OPNsense Firewall	01 | karlo-cn-fw-01 | port 1 
-| eth1 |  OVS Distribution switch 01 | karlo-cn-ds-01 | port 0
-| eth2 |	OVSDistribution switch 02 | karlo-cn-ds-02 | port 1
-| eth8 |	VyOS Core router 02 | karlo-cn-fw-02 | port 8
-| eth9 |	VyOS Core router 02 | karlo-cn-fw-02 | port 9
+| eth0 |	VyOS Core router 02 | karlo-cn-rtr-02 | port 0
+| eth1 |  OVS Distribution switch 02 | karlo-cn-ds-02 | port 1
+| eth2 |	OVS Distribution switch 02 | karlo-cn-ds-02 | port 2
+
 
 **karlo-cn-rtr-02** 
 | Device A port | Device B Device | Device B Hostname | Device B Port |
 |----------------------|-----------------|-------------------|---------------|
-| eth0 |	OPNsense Firewall	02 | karlo-cn-fw-02 | port 1
-| eth1 |	OVS Distribution switch 02 | karlo-cn-ds-02 | port 0 
-| eth2 |	OVS Distribution switch 01 | karlo-cn-ds-01 | port 1
-| eth8 |	VyOS Core router 01 | karlo-cn-fw-01 | port 8
-| eth9 |	VyOS Core router 01 | karlo-cn-fw-01 | port 9
+| eth0 |	VyOS Core router 01 | karlo-cn-rtr-01 | port 0
+| eth1 |	OVS Distribution switch 01 | karlo-cn-ds-01 | port 1 
+| eth2 |	OVS Distribution switch 01 | karlo-cn-ds-01 | port 2
+
 
 ### 3. High Availability & Routing Logic
 
   Gateway Redundancy:  
-  This lab uses VRRP at the core routers.
+  This lab uses VRRP at the core routers via sub-interfaces.
 
   Link Aggregation:  
-  The Router level utilizes LACP between karlo-cn-rtr-01 and karlo-cn-rtr-02 using eth8 and eth9 for the LAG link.
+  The Router level utilizes LACP between karlo-cn-rtr-01/02 and karlo-cn-ds-01/02 using eth1 and eth2 for the LAG link.
 
   Dynamic Routing:  
   OSPF is used in this lab for dynamic learning and distribution of routes.
+
+  High Availablity:  
+  A HA heartbeak link is configured between the core routers via a /30 subnet.
 
 
 ### 5. Automation Workflow
