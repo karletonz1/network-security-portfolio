@@ -102,8 +102,8 @@ configure terminal
 hostname karlo-cn-leaf-01
 
 # 1. Management User
-username leafadmin secret password
-enable password leafpassenable
+username leafadmin secret "{{ vault_leaf_admin_pass }}"
+enable password "{{ vault_leaf_enable_pass }}"
 
 # 2. Enable eAPI for Ansible
 management api http-commands
@@ -151,8 +151,8 @@ configure terminal
 hostname karlo-cn-spine-01
 
 # 1. Management User
-username spineadmin secret spinepass
-enable password spinepassenable
+username spineadmin secret "{{ vault_spine_admin_pass }}"
+enable password "{{ vault_spine_enable_pass }}"
 
 # 2. Enable eAPI
 management api http-commands
