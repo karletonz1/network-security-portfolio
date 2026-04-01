@@ -1,55 +1,49 @@
-# Open vSwitch Deployment Guide
+# Arista vEOS Switch Deployment Guide
 
-This section documents the deployment and automation of the Distribution Switch layer using Open vSwitches for the North Star Infrastructure. These switches are used to simulate the aggregation layer, but it is mainly used as a layer 2 tool for the distribution and access layers. There are mLAG limitations of these switches within GN3 which necessitated a design choice of redundant pathing across all layers, with a single HA link between the routers but running VRRP in a ROAS topology.
+This section documents the deployment and automation of the switch environment using Arista vEOS Switches for the North Star Infrastructure. These switches are used to simulate the aggregation and access layer both respectively labelled Spine and Leaf. MLAG will be deployed to ensure at least 2 links are connected between all switches, and MLAG links with LACP will be configured for the links connecting the Spines to the VyOS Routers.
 
 ### 1. Prerequisites & Node Specification
 
-Image: Open vSwitch 3.1.0
+Image: Arista vEOS 4.35.3F
 
 Resources (Per Node):
-
-- RAM: 1024 MB 
-
+- RAM: 2048 MB 
 - vCPUs: 1 
-
 - Qemu Binary: x86_64 (v8.0.4)
-
-- Disk: 8 GB (Thin-provisioned).
     
-[Additional information of the devices can be found here](https://github.com/karletonz1/karlo-cn-ent-lab/blob/main/03-network-devices/open-vswitch/ansible/hosts)
+[Additional information of the devices can be found here]
 
 Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
-<img width="877" height="410" alt="image" src="https://github.com/user-attachments/assets/697b6470-c3bc-45db-a3dc-f6f96c2252f2" />
-
+<img width="744" height="395" alt="image" src="https://github.com/user-attachments/assets/8a05820f-0eae-4fce-8946-54142ef2c797" />
 
 ### Interface Mapping
 
 | Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
 |-----------------|-------------------|---------------|-----------------|-------------------|---------------|
-| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | eth1
-| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | eth2
-| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth5 | OVS Access Switch 01 | karlo-cn-access-01 | eth0
-| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth6 | OVS Access Switch 02 | karlo-cn-access-02 | eth0
-| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth14 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth14
-| OVS Distribution Switch 01 | karlo-cn-ds-01 | eth15 | OVS Distribution Switch 02 | karlo-cn-ds-02 | eth15
-| OVS Access Switch 01 | karlo-cn-access-01 | eth0 | OVS Distribution Switch 01 | karlo-cn-ds01 | eth5
-| OVS Access Switch 01 | karlo-cn-access-01 | eth1 | OVS Distribution Switch 02 | karlo-cn-ds02 | eth5
-| OVS Access Switch 01 | karlo-cn-access-01 | eth15 | Linux Ansible Host | karlo-cn-ansible | eth15
+| vEOS Spine Switch 01 | karlo-cn-spine-01 | eth1 | VyOS Core router 01 | karlo-cn-rtr-01 | eth1
+| vEOS Spine Switch 01 | karlo-cn-spine-01 | eth2 | VyOS Core router 02 | karlo-cn-rtr-02 | eth2
+| vEOS Spine Switch 01 | karlo-cn-spine-01 | eth3 | vEOS Spine Switch 02  | karlo-cn-spine-02  | eth3
+| vEOS Spine Switch 01 | karlo-cn-spine-01 | eth4 | vEOS Spine Switch 02  | karlo-cn-spine-02  | eth4
+| vEOS Spine Switch 01 | karlo-cn-spine-01 | eth5 | vEOS Leaf Switch 01  | karlo-cn-leaf-01 | eth5
+| vEOS Spine Switch 01 | karlo-cn-spine-01 | eth6 | vEOS Leaf Switch 02  | karlo-cn-leaf-02 | eth6
+| vEOS Leaf Switch 01 | karlo-cn-leaf-01 | eth5 | vEOS Spine Switch 01 | karlo-cn-spine-01 | eth5
+| vEOS Leaf Switch 01 | karlo-cn-leaf-01 | eth6 | vEOS Spine Switch 02 | karlo-cn-spine-02 | eth6
+| vEOS Leaf Switch 01 | karlo-cn-leaf-01 | eth12 | Linux Ansible Host | karlo-cn-ansible | eth0
 
 
 | Device A Device | Device A Hostname | Device A port | Device B Device | Device B Hostname | Device B Port |
 |-----------------|-------------------|---------------|-----------------|-------------------|---------------|
-| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth1 | VyOS Core router 02 | karlo-cn-rtr-02 | eth1 
-| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth2 | VyOS Core router 02 | karlo-cn-rtr-02 | eth2
-| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth5 | OVS Access Switch 01 | karlo-cn-access-01 | eth1
-| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth6 | OVS Access Switch 02 | karlo-cn-access-02 | eth1
-| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth14 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth14
-| OVS Distribution Switch 02 | karlo-cn-ds-02 | eth15 | OVS Distribution Switch 01 | karlo-cn-ds-01 | eth15
-| OVS Access Switch 02 | karlo-cn-access-02 | eth0 | OVS Distribution Switch 01 | karlo-cn-ds01 | eth6
-| OVS Access Switch 02 | karlo-cn-access-02 | eth1 | OVS Distribution Switch 02 | karlo-cn-ds02 | eth6
+| vEOS Spine Switch 02 | karlo-cn-spine-02 | eth1 | VyOS Core router 02 | karlo-cn-rtr-02 | eth1 
+| vEOS Spine Switch 02 | karlo-cn-spine-02 | eth2 | VyOS Core router 01 | karlo-cn-rtr-01 | eth2
+| vEOS Spine Switch 02 | karlo-cn-spine-02 | eth3 | vEOS Spine Switch 01  | karlo-cn-spine-01 | eth3
+| vEOS Spine Switch 02 | karlo-cn-spine-02 | eth4 | vEOS Spine Switch 01  | karlo-cn-spine-01  | eth4
+| vEOS Spine Switch 02 | karlo-cn-spine-02 | eth5 | vEOS Leaf Switch 02  | karlo-cn-leaf-02 | eth5
+| vEOS Spine Switch 02 | karlo-cn-spine-02 | eth6 | vEOS Leaf Switch 01  | karlo-cn-leaf-01 | eth6
+| vEOS Leaf Switch 02 | karlo-cn-leaf-02 | eth5 | vEOS Spine Switch 02 | karlo-cn-spine-02 | eth5
+| vEOS Leaf Switch 02 | karlo-cn-leaf-02 | eth6 | vEOS Spine Switch 01 | karlo-cn-spine-01 | eth6
 
 
 
@@ -60,18 +54,18 @@ Management Access: SSH enabled with dedicated ansible service account.
 ### IP Address Allocation (Distribution Switch Layer-OVS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
 |----------|-----------|-------------------|-------------|------|----------|
-| karlo-cn-ds-01| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-ds-01| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-ds-01| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
-| karlo-cn-ds-01| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
-| karlo-cn-ds-01| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
-| karlo-cn-ds-01| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
-| karlo-cn-ds-02| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-ds-02| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-ds-02| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
-| karlo-cn-ds-02| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
-| karlo-cn-ds-02| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
-| karlo-cn-ds-02| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
+| karlo-cn-spine-01| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-spine-01| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-spine-01| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
+| karlo-cn-spine-01| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
+| karlo-cn-spine-01| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
+| karlo-cn-spine-01| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
+| karlo-cn-spine-02| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-spine-02| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
+| karlo-cn-spine-02| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
+| karlo-cn-spine-02| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
+| karlo-cn-spine-02| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
+| karlo-cn-spine-02| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
 
 ### IP Address Allocation (Access Switch Layer-OVS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
