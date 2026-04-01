@@ -91,104 +91,100 @@ Trunk ports will be configured for eth1 and eth2. Vlan configuration for all vla
 
 ### 5. Automation Workflow
 
-Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation.
+Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation.  
 
-**karlo-cn-ds-01 Bootstrap Config**
+⚠️For all switches, run ***#zerotouch cancel*** to stop Arista ZTP and enter manual configuration mode. This will trigger an immediate switch reload.  
+
+**karlo-cn-leaf-01 Bootstrap Config**  
 ```text
-# Ensure a clean OVS node to prevent errors about bridge br0 already existing
-ovs-vsctl del-br br0
+enable
+configure terminal
+hostname karlo-cn-leaf-01
 
-# Create bridge and enable STP
-ovs-vsctl add-br br0
-ovs-vsctl set bridge br0 stp_enable=true
+# 1. Management User
+username leafadmin secret password
+enable password leafpassenable
 
-# Add eth5 (The downlink to Access-01) for initial bootstrap reachability
-ovs-vsctl add-port br0 eth5
+# 2. Enable eAPI for Ansible
+management api http-commands
+   protocol https
+   no protocol HTTP
+   no shutdown
+   exit
 
-# Add the first peer link
-ovs-vsctl add-port br0 eth14
+# 3. VLAN & Interface Configuration
+vlan 10
+   name INFRA-MGMT
+   exit
 
-# Add the second peer link
-ovs-vsctl add-port br0 eth15
+interface Ethernet12
+   description Link to Ansible host
+   switchport mode access
+   switchport access vlan 10
+   no shutdown
 
-# Assign Management IP address
-ip addr flush dev eth5
-ip addr add 10.0.10.104/24 dev br0
-ip link set br0 up
+interface Ethernet5
+   description Uplink to karlo-cn-spine-01
+   switchport mode trunk
+   switchport trunk allowed vlan 10
+   no shutdown
 
-# Set Gateway to the Router Management VIP
-ip route add default via 10.0.10.254
+# 4. Management IP for Ansible Reachability
+interface Vlan 10
+   ip address 10.0.10.104/24
+   no shutdown
+exit
+
+write memory
 ```
-**karlo-cn-ds-02 Bootstrap Config**
+
+**karlo-cn-leaf-02 Bootstrap Config**  
+
 ```text
-# Ensure a clean OVS node to prevent errors about bridge br0 already existing
-ovs-vsctl del-br br0
 
-# Create bridge and enable STP
-ovs-vsctl add-br br0
-ovs-vsctl set bridge br0 stp_enable=true
-
-# Add eth6 (The downlink to Access-02) for initial bootstrap reachability
-ovs-vsctl add-port br0 eth6
-
-# Add the first peer link
-ovs-vsctl add-port br0 eth14
-
-# Add the second peer link
-ovs-vsctl add-port br0 eth15
-
-# Assign Management IP address
-ip addr flush dev eth6
-ip addr add 10.0.10.105/24 dev br0
-ip link set br0 up
-
-# Set Gateway to the Router Management VIP
-ip route add default via 10.0.10.254
 ```
-**karlo-cn-access-01 Bootstrap Config**
+**karlo-cn-spine-01 Bootstrap Config**  
+
 ```text
-# Ensure a clean OVS node to prevent errors about bridge br0 already existing
-ovs-vsctl del-br br0
+enable
+configure terminal
+hostname karlo-cn-spine-01
 
-# Create bridge and enable STP
-ovs-vsctl add-br br0
-ovs-vsctl set bridge br0 stp_enable=true
+# 1. Management User
+username spineadmin secret spinepass
+enable password spinepassenable
 
-# Add eth15 (The link to Ansible node)
-ovs-vsctl add-port br0 eth15
+# 2. Enable eAPI
+management api http-commands
+   protocol https
+   no protocol http
+   no shutdown
+   exit
 
-# Add the uplinks to reach the Distro Layer
-ovs-vsctl add-port br0 eth0  # Connection to ds-01 
-ovs-vsctl add-port br0 eth1  # Connection to ds-02
+# 3. VLAN & Interface Configuration
+vlan 10
+   name INFRA-MGMT
+   exit
 
-# Assign Management IP address
-ip addr flush dev eth15
-ip addr add 10.0.10.106/24 dev br0
-ip link set br0 up
+interface Ethernet5
+   description Downlink to karlo-en-leaf-01
+   switchport mode trunk
+   switchport trunk allowed vlan 10
+   no shutdown
 
-# Set Gateway to the Router Management VIP
-ip route add default via 10.0.10.254
-```
-**karlo-cn-access-02 Bootstrap Config**
+# 4. SVI 
+interface Vlan 10
+   ip address 10.0.10.106/24
+   description INFRA-MGMT gateway
+   no shutdown
+exit
+
+write memory
+```  
+**karlo-cn-spine-02 Bootstrap Config**  
+
 ```text
-# Ensure a clean OVS node to prevent errors about bridge br0 already existing
-ovs-vsctl del-br br0
 
-# Create bridge and enable STP
-ovs-vsctl add-br br0
-ovs-vsctl set bridge br0 stp_enable=true
-
-# Add the uplinks to reach the Distro Layer
-ovs-vsctl add-port br0 eth0  # Connection to ds-01
-ovs-vsctl add-port br0 eth1  # Connection to ds-02
-
-# Assign Management IP address
-ip addr flush dev eth1
-ip addr add 10.0.10.107/24 dev br0
-ip link set br0 up
-
-# Set Gateway to the Router Management VIP
-ip route add default via 10.0.10.254
 ```
 **karlo-cn-ansible Bootstrap Config**
 ```text
