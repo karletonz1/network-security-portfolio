@@ -135,7 +135,7 @@ interface Vlan 10
    no shutdown
 exit
 
-write memory
+copy run start
 ```
 
 **karlo-cn-leaf-02 Bootstrap Config**  
@@ -179,7 +179,7 @@ interface Vlan 10
    no shutdown
 exit
 
-write memory
+copy run start
 ```  
 **karlo-cn-spine-02 Bootstrap Config**  
 
