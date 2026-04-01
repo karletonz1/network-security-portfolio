@@ -1,1 +1,4 @@
-
+---
+ansible_user: leafadmin
+ansible_password: "{{ vault_leaf_admin_pass }}"
+ansible_become_password: "{{ vault_leaf_enable_pass }}"
