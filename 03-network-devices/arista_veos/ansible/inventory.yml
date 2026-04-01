@@ -1,18 +1,23 @@
-[ovs_distro]
-karlo-cn-ds-01      ansible_host=10.0.10.104
-karlo-cn-ds-02      ansible_host=10.0.10.105
+all:
+  children:
+    arista_switches:
+      children:
+         arista_leaf_switches:
+           hosts:
+             karlo-cn-leaf-01:
+               ansible_host: 10.0.10.104
+             karlo-cn-leaf-02:
+               ansible_host: 10.0.10.105
+         arista_spine_switches:
+           hosts:
+             karlo-cn-spine-01:
+               ansible_host: 10.0.10.106
+             karlo-cn-spine-02:
+               ansible_host: 10.0.10.107
 
-[ovs_access]
-karlo-cn-access-01  ansible_host=10.0.10.106
-karlo-cn-access-02  ansible_host=10.0.10.107
-
-[ovs_switches:children]
-ovs_distro
-ovs_access
-
-[ovs_switches:vars]
-ansible_user=root
-ansible_connection=network_cli
-ansible_network_os=linux
-
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+         vyos_routers:
+           hosts:
+             karlo-cn-rtr-01:
+               ansible_host: 10.0.10.1
+             karlo-cn-rtr-02:
+               ansible_host: 10.0.10.2
