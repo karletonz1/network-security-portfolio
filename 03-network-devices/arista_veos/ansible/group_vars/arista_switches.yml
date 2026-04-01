@@ -1,0 +1,9 @@
+---
+ansible_connection: ansible.netcommon.httpapi
+ansible_network_os: arista.eos.eos
+ansible_user: admin
+ansible_password: password
+ansible_httpapi_use_ssl: true
+ansible_httpapi_validate_certs: false
+ansible_httpapi_port: 443
+root@karlo-cn-ansible:/etc/ansible/group_vars#
