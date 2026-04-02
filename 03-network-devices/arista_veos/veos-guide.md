@@ -127,7 +127,7 @@ interface Ethernet5
 
 # 4. Management IP for Ansible Reachability
 interface Vlan 10
-   ip address 10.0.10.104/24
+   ip address 10.0.10.106/24
    no shutdown
 exit
 
@@ -137,7 +137,45 @@ copy run start
 **karlo-cn-leaf-02 Bootstrap Config**  
 
 ```text
+enable
+configure terminal
+hostname karlo-cn-leaf-02
 
+# 1. Management User
+username leafadmin secret "{{ vault_leaf_admin_pass }}"
+enable password "{{ vault_leaf_enable_pass }}"
+
+# 2. Enable eAPI for Ansible
+management api http-commands
+   protocol https
+   no protocol HTTP
+   no shutdown
+   exit
+
+# 3. VLAN & Interface Configuration
+vlan 10
+   name INFRA-MGMT
+   exit
+
+interface Ethernet12
+   description Link to Ansible host
+   switchport mode access
+   switchport access vlan 10
+   no shutdown
+
+interface Ethernet5
+   description Uplink to karlo-cn-spine-01
+   switchport mode trunk
+   switchport trunk allowed vlan 10
+   no shutdown
+
+# 4. Management IP for Ansible Reachability
+interface Vlan 10
+   ip address 10.0.10.107/24
+   no shutdown
+exit
+
+copy run start
 ```
 **karlo-cn-spine-01 Bootstrap Config**  
 
@@ -168,9 +206,15 @@ interface Ethernet5
    switchport trunk allowed vlan 10
    no shutdown
 
+interface Ethernet6
+   description Downlink to karlo-en-leaf-02
+   switchport mode trunk
+   switchport trunk allowed vlan 10
+   no shutdown
+
 # 4. SVI 
 interface Vlan 10
-   ip address 10.0.10.106/24
+   ip address 10.0.10.104/24
    description INFRA-MGMT gateway
    no shutdown
 exit
@@ -180,7 +224,40 @@ copy run start
 **karlo-cn-spine-02 Bootstrap Config**  
 
 ```text
+enable
+configure terminal
+hostname karlo-cn-spine-02
 
+# 1. Management User
+username spineadmin secret "{{ vault_spine_admin_pass }}"
+enable password "{{ vault_spine_enable_pass }}"
+
+# 2. Enable eAPI
+management api http-commands
+   protocol https
+   no protocol http
+   no shutdown
+   exit
+
+# 3. VLAN & Interface Configuration
+vlan 10
+   name INFRA-MGMT
+   exit
+
+interface Ethernet5
+   description Downlink to karlo-en-leaf-02
+   switchport mode trunk
+   switchport trunk allowed vlan 10
+   no shutdown
+
+# 4. SVI 
+interface Vlan 10
+   ip address 10.0.10.105/24
+   description INFRA-MGMT gateway
+   no shutdown
+exit
+
+copy run start
 ```
 **karlo-cn-ansible Bootstrap Config**
 ```text
