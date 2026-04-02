@@ -1,5 +1,7 @@
-# Network-Security-Portfolio
-Hands-on network and security lab portfolio fully run in GNS3
+# Project North Star | Development Sandbox & Iteration
+Active development repository containing multiple changes, troubleshooting logs, and technical iterations as the North Star lab develops and improves over time.  
+
+For the final production release, see `north-star-prd.`
 
 ## Overview
 
