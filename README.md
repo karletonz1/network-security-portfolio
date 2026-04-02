@@ -22,6 +22,7 @@ Logical Diagram Overview
 |-----------|----------------|
 | **OPNsense Firewall** | Network edge security, NAT, ACLs, VPN |
 | **VyOS Router** | VLAN routing, OSPF |
+| **Arista vEOS Switch** | MLAG, Spine and Leaf redundancy |
 | **Windows Server DC1/DC2** | Active Directory, DNS, DHCP, domain redundancy |
 | **Windows & Linux Clients** | Cross-platform endpoint monitoring (Wazuh agents installed) |
 | **DMZ Servers (Debian + IIS)** | Web services in DMZ, monitored endpoints |
@@ -88,6 +89,26 @@ Logical Diagram Overview
 4. Inspect Security Tools - `04_Security`/ has Splunk dashboards, Wazuh agent configs, Kali scenarios, and Nessus reports.
 5. Check Backup Configurations - `05_Backups`/ contains Veeam backup jobs, secondary repository simulation, and recovery examples.
 6. Read Lab Scenarios - `06_Scenarios`/ includes step-by-step use cases demonstrating attacks, monitoring, and behaviours that were observed as well as remediation (if required).
+
+## Project Evolution | A Journey of Discovery
+
+### In the beginning (Phase 1)
+The initial choices made for the lab revolved heavily around the resources available to deploy the lab in GNS3 with minimal cost. Some roadblocks included some vendors requiring payment for the use of official QCOW2 files needed for GNS3 appliances and other hurdles were free options but did not have the full functionality needed for the lab. It was also important to be able to deploy this network by practicing automation, and Ansible was chosen for this purpose. A mix of manual configuration (bootstrap) was still required to get the initial networking up and running before fully configuring the network devices via Ansible Playbooks.
+
+The phase 1 plan was to deploy the infrastructure network, which included switches, routers, FWs and an Ansible host. The following were chosen:  
+- Open vSwitches
+- VyOS Routers
+- GNS3 Network Automation (Ansible host)
+- OPNsense Firewall
+
+This phase had several challenges to overcome but it also had some valuable wins:
+- I chose to configure the Open vSwitches first to simulate the Ansible node communication through a real network, but it was discovered that Ansible was unable to speak to these devices via SSH. Several troubleshooting steps were done including trying community 'fixed' versions of OVS. I found that no version of OVS I tried had the SSH module installed. 
+- A decision to pivot to Rest-API was made and to use Extreme Exos switches instead. However, it was discovered that these switches were defaulting to HTTP despite troubleshooting, and I could not get Ansible to speak to the switches. A final pivot to use Arista vEOS switches was made and these switches succesfully communicated with my Ansible node.
+- Numerous topology and IP table changes were made during this phase to accomodate the pivots needed to find applications that would work in GNS3. These updates also allowed for improvements to the structure of my Github repository to reflect best practices and showcase security considerations in the initial design. 
+- The Ansible host did not have all the prerequisites to allow for automation via Rest-API. This necessitated the use of cloud nodes in GNS3 to update this node.
+- The various pivots allowed me to refine the development of creating standardized Ansible directory structures, inventory management, and also allowed me to practice verification and troubleshooting commands.
+
+With the managment network stabilized, phase 2 focuses on deploying the full switch configurations via automation and moving from a single-homed design to a dual-home design using MLAG and LACP. 
 
 ## Contact
 - GitHub: https://github.com/karletonz1
