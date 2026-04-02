@@ -85,10 +85,10 @@ While physical hardware often includes a dedicated management port, the GNS3 env
 ### IP Address Allocation (Access Switch Layer-OVS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
 |----------|-----------|-------------------|-------------|------|----------|
-| karlo-cn-access-01| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
-| karlo-cn-access-01| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
-| karlo-cn-access-02| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
-| karlo-cn-access-02| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+| karlo-cn-leaf-01| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
+| karlo-cn-leaf-01| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+| karlo-cn-leaf-02| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
+| karlo-cn-leaf-02| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
 
 ### IP Address Allocation (Servers-Proxmox)
 | Hostname | GNS3 Port | IP Address | Vlan ID | Subnet | Gateway | MTU | Role | Link type|
@@ -108,10 +108,10 @@ While physical hardware often includes a dedicated management port, the GNS3 env
 | karlo-cn-fw-02 | 10.0.10.101 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
 | karlo-cn-rtr-01 | 10.0.10.102 | 10 | 10.0.10.0/24 | 10.0.10.254 | 1500 | In-band Management 
 | karlo-cn-rtr-02 | 10.0.10.103 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
-| karlo-cn-ds-01 | 10.0.10.104 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
-| karlo-cn-ds-02 | 10.0.10.105 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
-| karlo-cn-access-01 | 10.0.10.106 | 10 | 10.0.10.0/24   | 10.0.10.254 | 1500 | In-band Management 
-| karlo-cn-access-02 | 10.0.10.107 | 10 | 10.0.10.0/24   | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-spine-01 | 10.0.10.104 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-spine-02 | 10.0.10.105 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-leaf-01 | 10.0.10.106 | 10 | 10.0.10.0/24   | 10.0.10.254 | 1500 | In-band Management 
+| karlo-cn-leaf-02 | 10.0.10.107 | 10 | 10.0.10.0/24   | 10.0.10.254 | 1500 | In-band Management 
 | karlo-cn-ansible | 10.0.10.253 | 10 | 10.0.10.0/24  | 10.0.10.254 | 1500 | In-band Management 
 
 
