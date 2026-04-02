@@ -10,8 +10,6 @@ Resources (Per Node):
 - RAM: 2048 MB 
 - vCPUs: 1 
 - Qemu Binary: x86_64 (v8.0.4)
-    
-[Additional information of the devices can be found here]
 
 Management Access: SSH enabled with dedicated ansible service account.
 
@@ -79,14 +77,12 @@ Management Access: SSH enabled with dedicated ansible service account.
 
 ### 4. High Availability & Routing Logic
 
-  Gateway Redundancy:  
-  This lab uses VRRP at the core routers.
+  Design:
+  This lab uses MLAG at layer 2 and VRRP at layer 3 in order to eliminate single points of failure. By using MLAG at Layer 2 and VRRP at Layer 3, the design achieves an active-active network state. This provides a resilient Virtual IP gateway for all end-host subnets, which allows for fail-over to the redunant links seamlessly.
 
   Link Aggregation:  
-  The Router level utilizes LACP between karlo-cn-rtr-01/02 and karlo-cn-ds-01/02 using eth1 and eth2 for the LAG link. Trunk ports are configured for eth1/2 at the distribution switch end, and sub-interfaces are configured at the core router end. 
+  Karlo-cn-spine-01/02 use a cross topology with eth1 and eth2 connecting to rtr-01/rtr-02 eth1 and eth 2 respectively. MLAG is configured on the spines and LACP is configured on the routers.  
 
-Trunking:  
-Trunk ports will be configured for eth1 and eth2. Vlan configuration for all vlans in the lab will also be configured.
 
 
 ### 5. Automation Workflow
