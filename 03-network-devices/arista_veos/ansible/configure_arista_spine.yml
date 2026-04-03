@@ -1,0 +1,54 @@
+---
+- name: "North Star | Spine Playbook"
+  hosts: arista_spine_switches
+
+  tasks:
+    - name: "Configure Hostname"
+      arista.eos.eos_system:
+        hostname: "{{ inventory_hostname }}"
+
+    - name: "Set Basic Configuration"
+      arista.eos.eos_config:
+        lines:
+          - banner login "UNAUTHORIZED ACCESS PROHIBITED"
+          - spanning-tree mode rstp
+          - spanning-tree rstp priority {{ stp_priority }}
+          - "enable password leafpassenable"
+
+    - name: "Configure SSH Timeout"
+      arista.eos.eos_config:
+        lines:
+          - "idle-timeout 15"
+        parents: "management ssh"
+
+    - name: "Configure VLANs"
+      arista.eos.eos_vlans:
+        config:
+          - vlan_id: "{{ item.id }}"
+            name: "{{ item.name }}"
+        state: merged
+      loop: "{{ north_star_vlans }}"
+
+    - name: "Configure Physical Interfaces"
+      arista.eos.eos_config:
+        lines:
+          - "description Downlink to {{ item.peer }}"
+          - "switchport mode trunk"
+          - "switchport trunk allowed vlan {{ trunk_vlans }}"
+          - "channel-group {{ item.channel }} mode active"
+        parents: "interface {{ item.name }}"
+      loop: "{{ downlink_interfaces }}"
+
+    - name: "Configure Port-Channels to Leafs"
+      arista.eos.eos_l2_interfaces:
+        config:
+          - name: "Port-Channel{{ item.channel }}"
+            mode: trunk
+            trunk:
+              trunk_allowed_vlans: "{{ trunk_vlans }}"
+        state: merged
+      loop: "{{ downlink_interfaces }}"
+
+    - name: "Save Configuration"
+      arista.eos.eos_config:
+        save_when: modified
