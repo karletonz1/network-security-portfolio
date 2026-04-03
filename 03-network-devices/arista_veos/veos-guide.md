@@ -11,7 +11,6 @@ Resources (Per Node):
 - vCPUs: 1 
 - Qemu Binary: x86_64 (v8.0.4)
 
-Management Access: SSH enabled with dedicated ansible service account.
 
 ### 2. Physical Topology
 
@@ -93,12 +92,8 @@ Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansibl
 
 **karlo-cn-leaf-01 Bootstrap Config**  
 ```text
-enable
-configure terminal
-hostname karlo-cn-leaf-01
-
 # 1. Management User
-username leafadmin secret "{{ vault_leaf_admin_pass }}"
+username leafadmin privilege 15 secret "{{ vault_leaf_admin_pass }}"
 enable password "{{ vault_leaf_enable_pass }}"
 
 # 2. Enable eAPI for Ansible
@@ -110,15 +105,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. VLAN & Interface Configuration
-vlan 10
-   name INFRA-MGMT
-   exit
-
-# 4. Create the management isolation container
+# 3. Create the management isolation container
 vrf instance management
 
-# 5. Configure the physical management port
+# 4. Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -132,12 +122,8 @@ copy run start
 **karlo-cn-leaf-02 Bootstrap Config**  
 
 ```text
-enable
-configure terminal
-hostname karlo-cn-leaf-02
-
 # 1. Management User
-username leafadmin secret "{{ vault_leaf_admin_pass }}"
+username leafadmin privilege 15 secret "{{ vault_leaf_admin_pass }}"
 enable password "{{ vault_leaf_enable_pass }}"
 
 # 2. Enable eAPI for Ansible
@@ -149,15 +135,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. VLAN & Interface Configuration
-vlan 10
-   name INFRA-MGMT
-   exit
-
-# 4. Create the management isolation container
+# 3. Create the management isolation container
 vrf instance management
 
-# 5. Configure the physical management port
+# 4. Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -170,12 +151,8 @@ copy run start
 **karlo-cn-spine-01 Bootstrap Config**  
 
 ```text
-enable
-configure terminal
-hostname karlo-cn-spine-01
-
 # 1. Management User
-username spineadmin secret "{{ vault_spine_admin_pass }}"
+username spineadmin privilege 15 secret "{{ vault_spine_admin_pass }}"
 enable password "{{ vault_spine_enable_pass }}"
 
 # 2. Enable eAPI
@@ -187,15 +164,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. VLAN & Interface Configuration
-vlan 10
-   name INFRA-MGMT
-   exit
-
-# 4. Create the management isolation container
+# 3. Create the management isolation container
 vrf instance management
 
-# 5. Configure the physical management port
+# 4. Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -208,12 +180,8 @@ copy run start
 **karlo-cn-spine-02 Bootstrap Config**  
 
 ```text
-enable
-configure terminal
-hostname karlo-cn-spine-02
-
 # 1. Management User
-username spineadmin secret "{{ vault_spine_admin_pass }}"
+username spineadmin privilege 15 secret "{{ vault_spine_admin_pass }}"
 enable password "{{ vault_spine_enable_pass }}"
 
 # 2. Enable eAPI
@@ -225,15 +193,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. VLAN & Interface Configuration
-vlan 10
-   name INFRA-MGMT
-   exit
-
-# 4. Create the management isolation container
+# 3. Create the management isolation container
 vrf instance management
 
-# 5. Configure the physical management port
+# 4. Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
