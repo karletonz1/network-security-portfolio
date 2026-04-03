@@ -92,11 +92,14 @@ Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansibl
 
 **karlo-cn-leaf-01 Bootstrap Config**  
 ```text
-# 1. Management User
+enable
+config
+
+! Management User (This cannot be pasted - recommended manually configuring user)
 username leafadmin privilege 15 secret "{{ vault_leaf_admin_pass }}"
 enable password "{{ vault_leaf_enable_pass }}"
 
-# 2. Enable eAPI for Ansible
+! Enable eAPI
 management api http-commands
    protocol https
    no protocol HTTP
@@ -105,10 +108,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. Create the management isolation container
+! Create the management VRF
 vrf instance management
 
-# 4. Configure the physical management port
+! Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -122,11 +125,14 @@ copy run start
 **karlo-cn-leaf-02 Bootstrap Config**  
 
 ```text
-# 1. Management User
+enable
+config
+
+! Management User (This cannot be pasted - recommended manually configuring user)
 username leafadmin privilege 15 secret "{{ vault_leaf_admin_pass }}"
 enable password "{{ vault_leaf_enable_pass }}"
 
-# 2. Enable eAPI for Ansible
+! Enable eAPI
 management api http-commands
    protocol https
    no protocol HTTP
@@ -135,10 +141,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. Create the management isolation container
+! Create the management VRF
 vrf instance management
 
-# 4. Configure the physical management port
+! Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -151,11 +157,14 @@ copy run start
 **karlo-cn-spine-01 Bootstrap Config**  
 
 ```text
-# 1. Management User
+enable
+config
+
+! Management User (This cannot be pasted - recommended manually configuring user)
 username spineadmin privilege 15 secret "{{ vault_spine_admin_pass }}"
 enable password "{{ vault_spine_enable_pass }}"
 
-# 2. Enable eAPI
+! Enable eAPI
 management api http-commands
    protocol https
    no protocol http
@@ -164,10 +173,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. Create the management isolation container
+! Create the management VRF
 vrf instance management
 
-# 4. Configure the physical management port
+! Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -180,11 +189,14 @@ copy run start
 **karlo-cn-spine-02 Bootstrap Config**  
 
 ```text
-# 1. Management User
+enable
+config
+
+! Management User (This cannot be pasted - recommended manually configuring user)
 username spineadmin privilege 15 secret "{{ vault_spine_admin_pass }}"
 enable password "{{ vault_spine_enable_pass }}"
 
-# 2. Enable eAPI
+! Enable eAPI
 management api http-commands
    protocol https
    no protocol http
@@ -193,10 +205,10 @@ management api http-commands
    no shutdown
    exit
 
-# 3. Create the management isolation container
+! Create the management isolation container
 vrf instance management
 
-# 4. Configure the physical management port
+! Configure the physical management port
 interface Management1
    description OOBM-TO-ANSIBLE
    vrf management
@@ -214,6 +226,10 @@ ifconfig eth0 10.0.10.253 netmask 255.255.255.0 up
 # 2. Add the default gateway
 route add default gw 10.0.10.254
 ```
+ℹ️ To check if ansible was successful for the leaf configuration only, you should see something like this:  
+<img width="863" height="850" alt="image" src="https://github.com/user-attachments/assets/79b5f5ad-4e55-449b-a9af-8ec519163441" />
+
+
 **Ansible Orchestration**  
 State-based configuration to manage:  
   ✅ Basic configuration such as system hostnames, compliance banners  
