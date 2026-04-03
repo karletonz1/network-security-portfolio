@@ -84,7 +84,7 @@ While physical hardware often includes a dedicated management port, the GNS3 env
 | karlo-cn-spine-02| eth6 | Port-channel 10 | 10,11,20,21,30,40,50,60,666 | Downlink to Leaf Switch 01 | Trunk
 
 
-### IP Address Allocation (Access Switch Layer-OVS)
+### IP Address Allocation (Access Switch Layer-Arista vEOS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
 |----------|-----------|-------------------|-------------|------|----------|
 | karlo-cn-leaf-01| eth5 | Port-channel 10 | 10,11,20,21,30,40,50,60,666 | Uplink to Spine Switch 01 | Trunk
