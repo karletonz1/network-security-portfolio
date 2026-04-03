@@ -313,7 +313,7 @@ Restrict SSH and SNMP traffic so that only the Ansible node's IP can connect. Th
 ✅ Individual Accounts: Linux Sudo Groups
 
 **External Authentication:**  
-An authentication order will be configured via Pluggable Authentication Modules:
+An authentication order will be configured via Pluggable Authentication Modules:  
 ✅ RADIUS as primary (running on the Domain Controllers)  
 ✅ local as fallback.  
 
@@ -323,17 +323,5 @@ An authentication order will be configured via Pluggable Authentication Modules:
 ✅ SNMPv3 only
 
 [Refer here for configuration](https://github.com/karletonz1/karlo-cn-ent-lab/blob/main/03-network-devices/open-vswitch/ansible/base-config.yml)
-
-### 8. Verification Commands
-
-Useful CLI commands for validating the state on any OVS:
-- ```ovs-appctl bond/show``` - shows exactly which physical interfaces are active in the bond and LACP negotiation status
-- ```ovs-vsctl list port``` - Confirms that your ports are correctly assigned to the intended VLAN trunks
-- ```ovs-appctl stp/show``` - Shows the STP state of every port
-- ```ovs-appctl fdb/show br0``` - Displays the MAC table
-- ```ip addr show br0``` - You should see this to verify bootstrap configuration success <img width="639" height="116" alt="image" src="https://github.com/user-attachments/assets/163ad77d-d621-4714-91b8-201225e732be" />
-- ```ping -c 5 (IP Addres)``` - Confirms that your ansible host can reach all four OVS switches after successfully configuring the bootstrap configurations  
-<img width="447" height="552" alt="image" src="https://github.com/user-attachments/assets/67eabd73-f516-4e89-9333-89f8b6f300e8" />
-
 
 
