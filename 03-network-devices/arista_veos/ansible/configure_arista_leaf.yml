@@ -1,0 +1,50 @@
+---
+- name: "North Star | Leaf deployment"
+  hosts: arista_leaf_switches
+  gather_facts: false
+
+  tasks:
+    - name: "MGMT | Configure System Hostname"
+      arista.eos.eos_system:
+        hostname: "{{ inventory_hostname }}"
+
+    - name: "MGMT | Apply System Hardening & RSTP Baseline"
+      arista.eos.eos_config:
+        lines:
+          - banner login "UNAUTHORIZED ACCESS PROHIBITED"
+          - spanning-tree mode rstp
+          - spanning-tree rstp priority 32768
+          - management ssh
+          -   idle-timeout 15
+
+    - name: "L2 | Generate VLAN Database"
+      arista.eos.eos_vlans:
+        config:
+          - vlan_id: "{{ item.id }}"
+            name: "{{ item.name }}"
+        state: merged
+      loop: "{{ north_star_vlans }}"
+
+    - name: "L1 | Link Physical Interfaces to Port-Channel"
+      arista.eos.eos_lag_interfaces:
+        config:
+          - name: "Port-Channel{{ uplink_po }}"
+            members:
+              - member: Ethernet5
+              - mode: active
+              - member: Ethernet6
+              - mode: active
+        state: merged
+
+    - name: "L2 | Configure LACP Port-Channel to Spines"
+      arista.eos.eos_l2_interfaces:
+        config:
+          - name: "Port-Channel{{ uplink_po }}"
+            mode: trunk
+            trunk:
+              trunk_allowed_vlans: "{{ trunk_vlans }}"
+        state: merged
+
+    - name: "SYS | Save Running Configuration to Startup"
+      arista.eos.eos_config:
+        save_when: modified
