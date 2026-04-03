@@ -104,13 +104,23 @@ The phase 1 plan was to deploy the infrastructure network, which included switch
 - OPNsense Firewall
 
 This phase had several challenges to overcome but it also had some valuable wins:
-- I chose to configure the Open vSwitches first to simulate the Ansible node communication through a real network, but it was discovered that Ansible was unable to speak to these devices via SSH. Several troubleshooting steps were done including trying community 'fixed' versions of OVS. I found that no version of OVS I tried had the SSH module installed. 
-- A decision to pivot to Rest-API was made and to use Extreme Exos switches instead. However, it was discovered that these switches were defaulting to HTTP despite troubleshooting, and I could not get Ansible to speak to the switches. A final pivot to use Arista vEOS switches was made and these switches succesfully communicated with my Ansible node.
-- Numerous topology and IP table changes were made during this phase to accomodate the pivots needed to find applications that would work in GNS3. These updates also allowed for improvements to the structure of my Github repository to reflect best practices and showcase security considerations in the initial design. 
-- The Ansible host did not have all the prerequisites to allow for automation via Rest-API. This necessitated the use of cloud nodes in GNS3 to update this node.
-- The various pivots allowed me to refine the development of creating standardized Ansible directory structures, inventory management, and also allowed me to practice verification and troubleshooting commands.
+1.  I chose to configure the Open vSwitches first to simulate the Ansible node communication through a real network, but it was discovered that Ansible was unable to speak to these devices via SSH. Several troubleshooting steps were done including trying community 'fixed' versions of OVS. I found that no version of OVS I tried had the SSH module installed.  
+2.  A decision to pivot to Rest-API was made and to use Extreme Exos switches instead. However, it was discovered that these switches were defaulting to HTTP despite troubleshooting, and I could not get Ansible to speak to the switches. A final pivot to use Arista vEOS switches was made and these switches succesfully communicated with my Ansible node.  
+- Numerous topology and IP table changes were made during this phase to accomodate the pivots needed to find applications that would work in GNS3. These updates also allowed for improvements to the structure of my Github repository to reflect best practices and showcase security considerations in the initial design.  
+3. The Ansible host did not have all the prerequisites to allow for automation via Rest-API which required updating via the internet.
+4. The various pivots allowed me to refine the development of creating standardized Ansible directory structures, inventory management, and also allowed me to practice verification and troubleshooting commands.  
 
 With the managment network stabilized, phase 2 focuses on deploying the full switch configurations via automation and moving from a single-homed design to a dual-home design using MLAG and LACP. 
+
+### Into the Automation Unknown (Phase 2)
+This phase was testing the concepts of Ansible automation on the Leaf switches first before expanding the configuring to the Spines.
+
+Challenges and wins:
+1. Since only a bootstrap configuration was done to the switches, single links were connected with no redundancy links to due MSTP running on default. This meant that as the playbook was run, the configuration was essentially cutting off Ansible's network access as it deployed the final configuration.  
+- An OOBM switch was needed to simulate enterprise environments where management and production networks are separated. Only one OOBM switch is used for simplicity in this lab, but it represents what would be done in environments like data centres for example.
+- The connection eth12 from Ansible to leaf-01 had to be moved to a dedicated OOBM switch, and the bootstrap configurations needed to be updated to move the management IP addresses to the management port. Links from the OOBM switch to all network devices were run to their respective management ports and segmented the management traffic by using a dedicated VRF management instance.  
+- Proof of concept was achieed after the removal of the pre-existing connections via data ports, and successfully running the playbooks using the OOBM connections via a GNS3 Ethernet switch. Multiple tests using the new lean bootstrap configuration was done.
+2. Numerous changes to physical and logical topologies were done to reflect this new addition to the lab.
 
 ## Contact
 - GitHub: https://github.com/karletonz1
