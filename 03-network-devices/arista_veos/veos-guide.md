@@ -106,6 +106,8 @@ management api http-commands
    protocol https
    no protocol HTTP
    no shutdown
+   vrf management
+   no shutdown
    exit
 
 # 3. VLAN & Interface Configuration
@@ -113,20 +115,13 @@ vlan 10
    name INFRA-MGMT
    exit
 
-interface Ethernet12
-   description Link to Ansible host
-   switchport mode access
-   switchport access vlan 10
-   no shutdown
+# 4. Create the management isolation container
+vrf instance management
 
-interface Ethernet5
-   description Uplink to karlo-cn-spine-01
-   switchport mode trunk
-   switchport trunk allowed vlan 10
-   no shutdown
-
-# 4. Management IP for Ansible Reachability
-interface Vlan 10
+# 5. Configure the physical management port
+interface Management1
+   description OOBM-TO-ANSIBLE
+   vrf management
    ip address 10.0.10.106/24
    no shutdown
 exit
@@ -150,6 +145,8 @@ management api http-commands
    protocol https
    no protocol HTTP
    no shutdown
+   vrf management
+   no shutdown
    exit
 
 # 3. VLAN & Interface Configuration
@@ -157,20 +154,13 @@ vlan 10
    name INFRA-MGMT
    exit
 
-interface Ethernet12
-   description Link to Ansible host
-   switchport mode access
-   switchport access vlan 10
-   no shutdown
+# 4. Create the management isolation container
+vrf instance management
 
-interface Ethernet5
-   description Uplink to karlo-cn-spine-01
-   switchport mode trunk
-   switchport trunk allowed vlan 10
-   no shutdown
-
-# 4. Management IP for Ansible Reachability
-interface Vlan 10
+# 5. Configure the physical management port
+interface Management1
+   description OOBM-TO-ANSIBLE
+   vrf management
    ip address 10.0.10.107/24
    no shutdown
 exit
@@ -193,6 +183,8 @@ management api http-commands
    protocol https
    no protocol http
    no shutdown
+   vrf management
+   no shutdown
    exit
 
 # 3. VLAN & Interface Configuration
@@ -200,22 +192,14 @@ vlan 10
    name INFRA-MGMT
    exit
 
-interface Ethernet5
-   description Downlink to karlo-en-leaf-01
-   switchport mode trunk
-   switchport trunk allowed vlan 10
-   no shutdown
+# 4. Create the management isolation container
+vrf instance management
 
-interface Ethernet6
-   description Downlink to karlo-en-leaf-02
-   switchport mode trunk
-   switchport trunk allowed vlan 10
-   no shutdown
-
-# 4. SVI 
-interface Vlan 10
+# 5. Configure the physical management port
+interface Management1
+   description OOBM-TO-ANSIBLE
+   vrf management
    ip address 10.0.10.104/24
-   description INFRA-MGMT gateway
    no shutdown
 exit
 
@@ -237,6 +221,8 @@ management api http-commands
    protocol https
    no protocol http
    no shutdown
+   vrf management
+   no shutdown
    exit
 
 # 3. VLAN & Interface Configuration
@@ -244,16 +230,14 @@ vlan 10
    name INFRA-MGMT
    exit
 
-interface Ethernet5
-   description Downlink to karlo-en-leaf-02
-   switchport mode trunk
-   switchport trunk allowed vlan 10
-   no shutdown
+# 4. Create the management isolation container
+vrf instance management
 
-# 4. SVI 
-interface Vlan 10
+# 5. Configure the physical management port
+interface Management1
+   description OOBM-TO-ANSIBLE
+   vrf management
    ip address 10.0.10.105/24
-   description INFRA-MGMT gateway
    no shutdown
 exit
 
