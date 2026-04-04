@@ -6,17 +6,25 @@
     - name: "Configure Hostname"
       arista.eos.eos_system:
         hostname: "{{ inventory_hostname }}"
-        
-    - name: "Set Basic Configuration, MSTP, and SSH"
+
+    - name: "Set Basic Configuration and SSH"
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
-          - "enable password "{{ vault_spine_enable_pass }}"
-          - "spanning-tree mode mstp"
-          - "spanning-tree priority 4096"
           - "idle-timeout 15"
         parents: "management ssh"
-        
+
+    - name: "Configure Enable Password"
+      arista.eos.eos_config:
+        lines:
+          - "enable password spinepassenable"
+
+    - name: "Configure MSTP"
+      arista.eos.eos_config:
+        lines:
+          - "spanning-tree mode mstp"
+          - "spanning-tree priority 4096"
+
     - name: "Configure VLANs"
       arista.eos.eos_vlans:
         config:
@@ -37,12 +45,12 @@
       arista.eos.eos_interfaces:
         config:
           - name: "{{ item.name }}"
-            description: "Downlink to {{ item.peer }}'
-            enabled: true #for non-Arista devices
+            description: 'Downlink to {{ item.peer }}'
+            enabled: true # For non-Arista devices
         state: merged
       loop: "{{ spine_interfaces }}"
 
-    - name: "Configure Port Channels on Physical Interfaces"
+    - name: "Configure Logical Port Channels on Physical Interfaces"
       arista.eos.eos_lag_interfaces:
         config:
           - name: "Port-Channel{{ item.channel }}"
@@ -61,6 +69,58 @@
               trunk_allowed_vlans: "{{ trunk_vlans }}"
         state: merged
       loop: "{{ spine_interfaces }}"
+
+    - name: "Configure MLAG Trunk Group"
+      arista.eos.eos_config:
+        lines:
+          - "vlan 10,11,20,21,30,40,50,60,666,70"
+          - "trunk group MLAG_PEER"
+
+    - name: "Disable STP on MLAG Peer VLAN"
+      arista.eos.eos_config:
+        lines:
+          - "no spanning-tree vlan-id 70"
+
+    - name: "Configure Physical MLAG Links"
+      arista.eos.eos_config:
+        lines:
+          - "switchport trunk group MLAG_PEER"
+          - "channel-group 70 mode active"
+        parents: "interface ethernet 3-4"
+
+    - name: "Configure Logical MLAG Peer Link"
+      arista.eos.eos_config:
+        lines:
+          - "description MLAG Peer Link Port Channel"
+          - "switchport mode trunk"
+          - "switchport trunk group MLAG_PEER"
+          - "no switchport trunk allowed vlan"
+        parents: "interface Port-Channel 70"
+
+    - name: "Configure MLAG Control SVI"
+      arista.eos.eos_config:
+        lines:
+          - "description MLAG Peer SVI Link"
+          - "ip address {{ mlag_ip }}"
+          - "no autostate"
+        parents: "interface Vlan 70"
+
+    - name: "Configure MLAG Process"
+      arista.eos.eos_config:
+        lines:
+          - "mlag configuration"
+          - "domain-id NORTH_STAR"
+          - "local-interface Vlan700"
+          - "peer-address {{ mlag_peer_ip }}"
+          - "peer-link Port-Channel 70"
+
+    - name: "Configure Downlink Port-Channels to Leaves"
+      arista.eos.eos_config:
+        lines:
+          - "interface Port-Channel 10"
+          - "mlag 10"
+          - "interface Port-Channel 20"
+          - "mlag 20"
 
     - name: "Save Configuration"
       arista.eos.eos_config:
