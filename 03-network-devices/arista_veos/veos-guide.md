@@ -14,7 +14,7 @@ Resources (Per Node):
 
 ### 2. Physical Topology
 
-<img width="744" height="395" alt="image" src="https://github.com/user-attachments/assets/8a05820f-0eae-4fce-8946-54142ef2c797" />
+<img width="737" height="392" alt="image" src="https://github.com/user-attachments/assets/222186d3-90eb-49b5-a267-c75b36faaacd" />
 
 ### Interface Mapping
 
@@ -46,32 +46,38 @@ Resources (Per Node):
 
 ### 2. Logical Topology
 
-<img width="1163" height="653" alt="image" src="https://github.com/user-attachments/assets/7e6cf077-2704-439c-998b-88ce8f16adba" />
+<img width="1172" height="566" alt="image" src="https://github.com/user-attachments/assets/e6dccf71-831c-4712-a872-af92a10dd093" />  
+  
+ℹ️ In order to provision the devices using ansible and only a bootstrap configuration, a OOBM network was needed to replicate what would be done in a production environment that had a separate out-of-band-management network. This lab simulates this using a separate switch connected to devices using a dedicated VRF management network on vlan 10.
+  
+<img width="1087" height="650" alt="image" src="https://github.com/user-attachments/assets/adcea78a-fa21-4a69-9669-59f996e18e9a" />
 
-### IP Address Allocation (Distribution Switch Layer-OVS)
+
+### IP Address Allocation (Spine Switch Layer-Arista vEOS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
 |----------|-----------|-------------------|-------------|------|----------|
-| karlo-cn-spine-01| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-spine-01| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-spine-01| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
-| karlo-cn-spine-01| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
-| karlo-cn-spine-01| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
-| karlo-cn-spine-01| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 2 | Trunk (LACP)
-| karlo-cn-spine-02| eth1 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-spine-02| eth2 | Bond0 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router | Trunk (LACP)
-| karlo-cn-spine-02| eth5 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 01 | Trunk
-| karlo-cn-spine-02| eth6 | - | 10,11,20,21,30,40,50,60,666 | Downlink to Access Switch 02 | Trunk
-| karlo-cn-spine-02| eth14 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
-| karlo-cn-spine-02| eth15 | Bond1 | 10,11,20,21,30,40,50,60,666 | Peer to Distro Switch 1 | Trunk (LACP)
+| karlo-cn-spine-01| eth1 | Port-channel 1 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router 01 | Trunk 
+| karlo-cn-spine-01| eth2 | Port-channel 2 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router 02 | Trunk 
+| karlo-cn-spine-01| eth5 | Port-channel 10 | 10,11,20,21,30,40,50,60,666 | Downlink to Leaf Switch 01 | Trunk
+| karlo-cn-spine-01| eth6 | Port-channel 20 | 10,11,20,21,30,40,50,60,666 | Downlink to Leaf Switch 02 | Trunk
+| karlo-cn-spine-01| eth3 | Port-channel 70 | 10,11,20,21,30,40,50,60,666,700 | MLAG Primary peer link | Trunk 
+| karlo-cn-spine-01| eth4 | Port-channel 70 | 10,11,20,21,30,40,50,60,666,700 | MLAG Primary peer link | Trunk 
+| karlo-cn-spine-02| eth1 | Port-channel 2 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router 02 | Trunk 
+| karlo-cn-spine-02| eth2 | Port-channel 1 | 10,11,20,21,30,40,50,60,666 | Uplink to Core Router 01 | Trunk 
+| karlo-cn-spine-02| eth3 | Port-channel 70 | 10,11,20,21,30,40,50,60,666,700 | MLAG Secondary peer link | Trunk 
+| karlo-cn-spine-02| eth4 | Port-channel 70 | 10,11,20,21,30,40,50,60,666,700 | MLAG Secondary peer link | Trunk
+| karlo-cn-spine-02| eth5 | Port-channel 20 | 10,11,20,21,30,40,50,60,666 | Downlink to Leaf Switch 02 | Trunk
+| karlo-cn-spine-02| eth6 | Port-channel 10 | 10,11,20,21,30,40,50,60,666 | Downlink to Leaf Switch 01 | Trunk
 
-### IP Address Allocation (Access Switch Layer-OVS)
+
+### IP Address Allocation (Access Switch Layer-Arista vEOS)
 | Hostname | GNS3 Port | Logical Interface |Allowed Vlan | Role | Link type| 
 |----------|-----------|-------------------|-------------|------|----------|
-| karlo-cn-access-01| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
-| karlo-cn-access-01| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
-| karlo-cn-access-01| eth15 | - | All | Ansible uplink to Access Switch 01 | Trunk
-| karlo-cn-access-02| eth0 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 01 | Trunk
-| karlo-cn-access-02| eth1 | - | 10,11,20,21,30,40,50,60,666 | Uplink to Distro Switch 02 | Trunk
+| karlo-cn-leaf-01| eth5 | Port-channel 10 | 10,11,20,21,30,40,50,60,666 | Uplink to Spine Switch 01 | Trunk
+| karlo-cn-leaf-01| eth6 | Port-channel 10 | 10,11,20,21,30,40,50,60,666 | Uplink to Spine Switch 02 | Trunk
+| karlo-cn-leaf-01| eth12 | - | 10 | Downlink to karlo-cn-ansible | Access
+| karlo-cn-leaf-02| eth5 | Port-channel 20 | 10,11,20,21,30,40,50,60,666 | Uplink to Spine Switch 02 | Trunk
+| karlo-cn-leaf-02| eth6 | Port-channel 20 | 10,11,20,21,30,40,50,60,666 | Uplink to Spine Switch 01 | Trunk
 
 
 ### 4. High Availability & Routing Logic
