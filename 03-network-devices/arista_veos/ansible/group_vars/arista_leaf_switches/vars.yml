@@ -1,4 +1,27 @@
 ---
 ansible_user: leafadmin
 ansible_password: "{{ vault_leaf_admin_pass }}"
+ansible_become: true
+ansible_become_method: enable
 ansible_become_password: "{{ vault_leaf_enable_pass }}"
+
+#DNS & NTP
+#name_servers:
+#ntp_servers:
+
+
+# VLAN Database
+north_star_vlans:
+  - { id: 10, name: "INFRA-MGMT", description: "Infrastructure VLAN" }
+  - { id: 11, name: "SRV-MGMT", description: "Server Management VLAN" }
+  - { id: 20, name: "WIN-CLIENTS", description: "Windows Clients VLAN" }
+  - { id: 21, name: "LIN-CLIENTS", description: "Linux Clients VLAN" }
+  - { id: 30, name: "SEC-APPS", description: "Security Applications VLAN" }
+  - { id: 40, name: "DMZ", description: "DMZ VLAN" }
+  - { id: 50, name: "PRD-SVRS", description: "Server Data VLAN" }
+  - { id: 60, name: "BACKUPS", description: "Veeam Backup VLAN" }
+  - { id: 70, name: "HA-LINK", description: "Router and Spine Switch HA Peer VLAN" }
+  - { id: 666, name: "BLACK-HOLE-SUN", description: "Black Hole Vlan" }
+
+# LACP Trunk Allowed VLANs
+trunk_vlans: "10-11,20-21,30,40,50,60,666"
