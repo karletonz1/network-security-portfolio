@@ -1,2 +1,4 @@
 ---
-uplink_po: 10
+leaf_interfaces:
+  - { name: "Ethernet5", peer: "karlo-cn-spine-01", channel: "10" }
+  - { name: "Ethernet6", peer: "karlo-cn-spine-02", channel: "10" }
