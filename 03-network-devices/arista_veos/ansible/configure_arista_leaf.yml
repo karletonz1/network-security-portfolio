@@ -11,8 +11,8 @@
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
-          - "username leafadmin secret leafpass"
-          - "enable password leafpassenable"
+          - "username leafadmin secret {{ vault_leaf_admin_pass }}"
+          - "enable password {{ vault_leaf_enable_pass }}"
           - "spanning-tree mode mstp"
           - "spanning-tree priority 4096"
           - "idle-timeout 15"
