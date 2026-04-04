@@ -80,7 +80,7 @@ Logical Diagram Overview
 - **Endpoint Monitoring:** Wazuh agents installed on all Windows and Linux servers/clients; logs forwarded to central Splunk server.
 - **Vulnerability Scanning:** Nessus Essentials VM used for periodic scans. A hard limit of five IP addresses is enforced using Nessus Essentials.
 - **Backups:** Veeam Backup Server handles backups for Windows and Linux servers; secondary repository simulated to another VM within the lab.
-- **Firewall, Routing, and Switching:** OPNsense is the chosen firewall appliance which handles NAT, ACLs, VPN etc; VyOS router handles l3 funtions such as VLANs and OSPF routing etc. Native l2 switch within GN3 was chosen but this limits the ability to configure LACP between the two distribution switches. A configuration document will instead be used to reference what would have been configured if l3 switches were used.
+- **Firewall, Routing, and Switching:** OPNsense is the chosen firewall appliance which handles NAT, ACLs, VPN etc; VyOS router handles l3 funtions such as OSFP routing and VRRP etc. Arista vEOS switches provides an impressive amount of real world capabilities and has been chosen to fill the spine and leaf roles in the lab. A main advantage of this switch is the ability to implement MLAG for true active-active redundancy.
 - **Attack Simulation:** Kali Linux VM used for penetration testing scenarios targeting DMZ, internal hosts, using common attack methods to test the effectiveness of the security systems implemented.
 - **Topology Notes:** DMZ isolated, firewall at network edge; internal VLANs routed via VyOS; VPN simulated from an external client to DMZ server.
 
