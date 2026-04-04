@@ -48,7 +48,7 @@ Resources (Per Node):
 
 <img width="1172" height="566" alt="image" src="https://github.com/user-attachments/assets/e6dccf71-831c-4712-a872-af92a10dd093" />  
   
-ℹ️ In order to provision the devices using ansible and only a bootstrap configuration, an out-of-band-management (OOBM) network was needed to replicate what would be done in a production environment with separate OOBM network. This lab simulates this using a separate switch connected to the network devices via a dedicated VRF management network on vlan 10.
+ℹ️ In order to provision the devices using ansible and only a bootstrap configuration, an out-of-band-management (OOBM) network was needed to replicate what would be done in a production environment with a separate OOBM network. This lab simulates this using a separate switch connected to the network devices via a dedicated VRF management network on vlan 10.
   
 <img width="1087" height="650" alt="image" src="https://github.com/user-attachments/assets/adcea78a-fa21-4a69-9669-59f996e18e9a" />
 
@@ -245,67 +245,8 @@ State-based configuration to manage:
   ✅ LACP configuration  
   ✅ VLAN and Trunking configuration  
   ✅ RSTP configuration  
-  
-[Refer here for configuration](https://github.com/karletonz1/karlo-cn-ent-lab/blob/main/03-network-devices/open-vswitch/ansible/base-config.yml)
 
-### 6. Deployment Hurdles & Pivots
-
-ℹ️**Hurdle 1:The "Virtual MLAG" Constraint**  
-Unlike physical enterprise switches (Cisco Nexus/Arista), the Open vSwitch (OVS) appliance in GNS3 does not natively support Multi-chassis Link Aggregation (mLAG).
-
-The Problem: 
-This meant a single router could not "bond" two links across two different switches.
-
-The Solution:  
-This necessitated a High-Availability Router-on-a-Stick (ROAS) design. Redundancy is handled at Layer 3 (VRRP) rather than Layer 2 (mLAG), ensuring that if a distribution switch fails, the entire routing path shifts to the secondary node.
-
-ℹ️**Hurdle 2:Control Plane Isolation**  
-The Problem:  
-Relying on the distro switches for router heartbeats introduced the risk of split-brain scenarios into the topology.
-
-The Solution:  
-The decision was made to create a dedicated point-to-point HA Link between rtr-01 and rtr-02 using a /30 subnet (10.0.70.0/30). This keeps the keep-alive traffic separate from production. The update of the IP table with the inclusion of the new subnet and ip addresses for the routers was needed.
-
-ℹ️**Hurdle 3: Multi-Tiered Redundancy Pathing**  
-The Problem:  
-Ensuring high availability from the Client to the Core without creating logical loops.
-
-The Solution:  
-I implemented a three-tier hierarchical design. Redundancy is achieved at Layer 2 via LACP Bonds between switches and at Layer 3 via VRRP Gateways on the VyOS Core. Explicitly tagging all infrastructure traffic and blackholing the native VLAN, created a hardened environment suitable for automated deployment.
-
-ℹ️**Hurdle 4: Management configuration for initial boostrap  
-The Problem:  
-Using eth15 on Access Switch 01 wa chosen as the entry point of the Ansible node. You would typically configure the interface as an access port with the specific VLAN for that device however, if I were to tag eth15 with vlan 10 now it would begin to tag that traffic which would need configuration at the router level to process this traffic.
-
-The solution:  
-Adding the management interface and eth15 without a specific tag would allow me to treat this traffic as native or untagged, which would bypass the need now to have a device capable or routing tagged traffic. 
-
-ℹ️**Hurdle 5: Permission Assumptions  
-Problem:  
-I assumed tunning sudo commands was always required, but on a native root terminal it resulted in command not found and too many errors.  
-
-<img width="317" height="181" alt="image" src="https://github.com/user-attachments/assets/4023a10f-0ade-4cfb-8dd7-05d402aa183e" />
-
-Solution:  
-I stripped sudo prefixes from the initial bootstrap config to match the environment of the GNS3 OVS appliance to prevent the errors from occuring.
-
-ℹ️**Hurdle 6: OVS/GNS3 Nuances  
-The Problem:  
-Even with the Sudo command removed from the bootstrap configuration, a brand new OVS node would still say that it cannot create a bridge because it already exists.  
-
-<img width="690" height="274" alt="image" src="https://github.com/user-attachments/assets/1f3a0c0b-69e7-4230-949d-ed60bed77451" />
-
-The Solution:  
-I needed to find the command that would essentially reset the device and add this command as the first step for the bootstrap configs. The command was ```ovs-vsctl del-br br0```
-
-ℹ️**Hurdle 7: Ansible Host Bootstrapping  
-The Problem:   
-I discovered that ping commands were not working from the Ansible host. After some research i discovered that configuration was needed on the Linux host similar to configuring an ipv4 address on a Windows machine if you're not using DHCP.
-
-The Solution:  
-I verified the commands needed to be added to the boostrap configuration for the Linux host running Ansible.
-
-### 7. Security & Compliance Hardening
+### 6. Security & Compliance Hardening
 
 **Banner/MOTD:**  
 Mandatory legal warning for unauthorized access.
