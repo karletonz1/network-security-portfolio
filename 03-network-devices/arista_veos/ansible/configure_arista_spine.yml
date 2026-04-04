@@ -6,25 +6,17 @@
     - name: "Configure Hostname"
       arista.eos.eos_system:
         hostname: "{{ inventory_hostname }}"
-
-    - name: "Set Basic Configuration"
+        
+    - name: "Set Basic Configuration, MSTP, and SSH"
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
-          - "enable password leafpassenable"
-
-    - name: "STP | Set Global Mode to MSTP"
-      arista.eos.eos_config:
-        lines:
+          - "enable password "{{ vault_leaf_enable_pass }}""
           - "spanning-tree mode mstp"
           - "spanning-tree priority 4096"
-
-    - name: "Configure SSH Timeout"
-      arista.eos.eos_config:
-        lines:
           - "idle-timeout 15"
         parents: "management ssh"
-
+        
     - name: "Configure VLANs"
       arista.eos.eos_vlans:
         config:
@@ -50,7 +42,7 @@
         state: merged
       loop: "{{ spine_interfaces }}"
 
-    - name: "Configure Logical Port Channels on Physical Interfaces"
+    - name: "Configure Port Channels on Physical Interfaces"
       arista.eos.eos_lag_interfaces:
         config:
           - name: "Port-Channel{{ item.channel }}"
