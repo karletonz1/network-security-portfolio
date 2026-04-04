@@ -16,8 +16,8 @@ Subnets
 | 40 | DMZ | 10.0.40.0/24
 | 50 | Production Servers | 10.0.50.0/24 
 | 60 | Backups | 10.0.60.0/24
-| 70 | HA link | 10.0.70.0/30
-| 700 | MLAG peer | 10.0.70.4/30
+| 70 | Router HA | 10.0.70.0/30
+| 70 | Spine MLAG Peer | 10.0.70.4/30
 | 666 | Black Hole Sun | 
 
 ℹ️ **VLAN 666:** Used as a "Blackhole" Native VLAN for all trunk ports**
