@@ -37,7 +37,7 @@
       arista.eos.eos_interfaces:
         config:
           - name: "{{ item.name }}"
-            description: 'Downlink to {{ item.peer }}'
+            description: "Downlink to {{ item.peer }}'
             enabled: true #for non-Arista devices
         state: merged
       loop: "{{ spine_interfaces }}"
