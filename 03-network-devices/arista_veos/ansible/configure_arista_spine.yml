@@ -11,7 +11,7 @@
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
-          - "enable password "{{ vault_spine_enable_pass }}""
+          - "enable password "{{ vault_spine_enable_pass }}"
           - "spanning-tree mode mstp"
           - "spanning-tree priority 4096"
           - "idle-timeout 15"
