@@ -1,23 +1,25 @@
 ---
-- name: "North Star | Leaf deployment"
+- name: "North Star | Leaf Playbook"
   hosts: arista_leaf_switches
-  gather_facts: false
 
   tasks:
-    - name: "MGMT | Configure System Hostname"
+    - name: "Configure Hostname"
       arista.eos.eos_system:
         hostname: "{{ inventory_hostname }}"
 
-    - name: "MGMT | Apply System Hardening & RSTP Baseline"
+    - name: "Set Basic Configuration"
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
-          - spanning-tree mode rstp
-          - spanning-tree rstp priority 32768
-          - management ssh
-          -   idle-timeout 15
+          - "enable password leafpassenable"
 
-    - name: "L2 | Generate VLAN Database"
+    - name: "Configure SSH Timeout"
+      arista.eos.eos_config:
+        lines:
+          - "idle-timeout 15"
+        parents: "management ssh"
+
+    - name: "Configure VLANs"
       arista.eos.eos_vlans:
         config:
           - vlan_id: "{{ item.id }}"
@@ -25,26 +27,16 @@
         state: merged
       loop: "{{ north_star_vlans }}"
 
-    - name: "L1 | Link Physical Interfaces to Port-Channel"
-      arista.eos.eos_lag_interfaces:
-        config:
-          - name: "Port-Channel{{ uplink_po }}"
-            members:
-              - member: Ethernet5
-              - mode: active
-              - member: Ethernet6
-              - mode: active
-        state: merged
+    - name: "Configure Physical Interfaces"
+      arista.eos.eos_config:
+        lines:
+          - "description Uplink to {{ item.peer }}"
+          - "switchport mode trunk"
+          - "switchport trunk allowed vlan {{ trunk_vlans }}"
+          - "channel-group {{ item.channel }} mode active"
+        parents: "interface {{ item.name }}"
+      loop: "{{ spine_interfaces }}"
 
-    - name: "L2 | Configure LACP Port-Channel to Spines"
-      arista.eos.eos_l2_interfaces:
-        config:
-          - name: "Port-Channel{{ uplink_po }}"
-            mode: trunk
-            trunk:
-              trunk_allowed_vlans: "{{ trunk_vlans }}"
-        state: merged
-
-    - name: "SYS | Save Running Configuration to Startup"
+    - name: "Save Configuration"
       arista.eos.eos_config:
         save_when: modified
