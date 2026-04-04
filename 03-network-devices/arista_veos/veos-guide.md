@@ -236,15 +236,15 @@ route add default gw 10.0.10.254
 <img width="863" height="850" alt="image" src="https://github.com/user-attachments/assets/79b5f5ad-4e55-449b-a9af-8ec519163441" />
 
 
-**Ansible Orchestration**  
+**Ansible Network Automation**  
 State-based configuration to manage:  
-  ✅ Basic configuration such as system hostnames, compliance banners  
-  ✅ Control plane hardening and RBAC  
-  ✅ SNMP and Syslog configuration  
-  ✅ NTP/DNS Settings  
-  ✅ LACP configuration  
-  ✅ VLAN and Trunking configuration  
-  ✅ RSTP configuration  
+  :white_check_mark: Basic configuration such as system hostnames and ompliance banners  
+  :white_check_mark: Control plane hardening and RBAC 
+  :white_check_mark: SNMP and Syslog configuration  
+  :white_check_mark: NTP/DNS Settings  
+  :white_check_mark: MLAG and LACP configuration  
+  :white_check_mark: VLAN and Trunking configuration  
+  :white_check_mark: MSTP configuration  
 
 ### 6. Security & Compliance Hardening
 
