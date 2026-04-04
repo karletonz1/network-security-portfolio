@@ -1,0 +1,14 @@
+---
+spanning_tree_mode: mst
+spanning_tree_priority: "4096"
+
+spine_interfaces:
+#  - { name: "Ethernet1", peer: "karlo-cn-leaf-01", channel: "10" }
+#  - { name: "Ethernet2", peer: "karlo-cn-leaf-02", channel: "20" }
+  - { name: "Ethernet3", peer: "karlo-cn-spine-01", channel: "700" }
+  - { name: "Ethernet4", peer: "karlo-cn-spine-01", channel: "700" }
+  - { name: "Ethernet6", peer: "karlo-cn-leaf-01", channel: "10" }
+  - { name: "Ethernet5", peer: "karlo-cn-leaf-02", channel: "20" }
+
+mlag_ip: "10.0.70.6/30"
+mlag_peer_ip: "10.0.70.5"
