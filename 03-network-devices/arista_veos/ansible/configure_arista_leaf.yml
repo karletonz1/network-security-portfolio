@@ -7,15 +7,17 @@
       arista.eos.eos_system:
         hostname: "{{ inventory_hostname }}"
 
-    - name: "Set Basic Configuration, MSTP, and SSH"
+    - name: "Set Basic Configuration and SSH"
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
-          - "enable password {{ vault_leaf_enable_pass }}"
-          - "spanning-tree mode mstp"
-          - "spanning-tree priority 4096"
           - "idle-timeout 15"
         parents: "management ssh"
+
+    - name: "Configure Enable Password"
+      arista.eos.eos_config:
+        lines:
+          - "enable password {{ vault_leaf_enable_pass }}"
 
     - name: "Configure VLANs"
       arista.eos.eos_vlans:
