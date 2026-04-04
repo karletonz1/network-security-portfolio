@@ -17,7 +17,7 @@
     - name: "Configure Enable Password"
       arista.eos.eos_config:
         lines:
-          - "enable password spinepassenable"
+          - "enable password {{ vault_spine_enable_pass }}"
 
     - name: "Configure MSTP"
       arista.eos.eos_config:
