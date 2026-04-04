@@ -7,15 +7,14 @@
       arista.eos.eos_system:
         hostname: "{{ inventory_hostname }}"
 
-    - name: "Set Basic Configuration"
+    - name: "Set Basic Configuration, MSTP, and SSH"
       arista.eos.eos_config:
         lines:
           - banner login "UNAUTHORIZED ACCESS PROHIBITED"
+          - "username leafadmin secret leafpass"
           - "enable password leafpassenable"
-
-    - name: "Configure SSH Timeout"
-      arista.eos.eos_config:
-        lines:
+          - "spanning-tree mode mstp"
+          - "spanning-tree priority 4096"
           - "idle-timeout 15"
         parents: "management ssh"
 
@@ -27,15 +26,42 @@
         state: merged
       loop: "{{ north_star_vlans }}"
 
+    - name: "Configure VLAN Descriptions"
+      arista.eos.eos_interfaces:
+        config:
+          - name: "VLAN{{ item.id }}"
+            description: "{{ item.description }}"
+        state: merged
+      loop: "{{ north_star_vlans }}"
+
     - name: "Configure Physical Interfaces"
-      arista.eos.eos_config:
-        lines:
-          - "description Uplink to {{ item.peer }}"
-          - "switchport mode trunk"
-          - "switchport trunk allowed vlan {{ trunk_vlans }}"
-          - "channel-group {{ item.channel }} mode active"
-        parents: "interface {{ item.name }}"
-      loop: "{{ spine_interfaces }}"
+      arista.eos.eos_interfaces:
+        config:
+          - name: "{{ item.name }}"
+            description: "Uplink to {{ item.peer }}"
+            enabled: true # For non-Arista devices
+        state: merged
+      loop: "{{ leaf_interfaces }}"
+
+    - name: "Configure Port Channels on Physical Interfaces"
+      arista.eos.eos_lag_interfaces:
+        config:
+          - name: "Port-Channel{{ item.channel }}"
+            members:
+              - member: "{{ item.name }}"
+                mode: active
+        state: merged
+      loop: "{{ leaf_interfaces }}"
+
+    - name: "Configure Port-Channels to Spines"
+      arista.eos.eos_l2_interfaces:
+        config:
+          - name: "Port-Channel{{ item.channel }}"
+            mode: trunk
+            trunk:
+              trunk_allowed_vlans: "{{ trunk_vlans }}"
+        state: merged
+      loop: "{{ leaf_interfaces }}"
 
     - name: "Save Configuration"
       arista.eos.eos_config:
