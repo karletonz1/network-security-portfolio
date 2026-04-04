@@ -48,7 +48,7 @@ Resources (Per Node):
 
 <img width="1172" height="566" alt="image" src="https://github.com/user-attachments/assets/e6dccf71-831c-4712-a872-af92a10dd093" />  
   
-ℹ️ In order to provision the devices using ansible and only a bootstrap configuration, a OOBM network was needed to replicate what would be done in a production environment that had a separate out-of-band-management network. This lab simulates this using a separate switch connected to devices using a dedicated VRF management network on vlan 10.
+ℹ️ In order to provision the devices using ansible and only a bootstrap configuration, an out-of-band-management (OOBM) network was needed to replicate what would be done in a production environment with separate OOBM network. This lab simulates this using a separate switch connected to the network devices via a dedicated VRF management network on vlan 10.
   
 <img width="1087" height="650" alt="image" src="https://github.com/user-attachments/assets/adcea78a-fa21-4a69-9669-59f996e18e9a" />
 
