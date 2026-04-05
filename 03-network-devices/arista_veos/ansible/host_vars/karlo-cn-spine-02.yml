@@ -10,5 +10,5 @@ spine_interfaces:
   - { name: "Ethernet6", peer: "karlo-cn-leaf-01", channel: "10" }
   - { name: "Ethernet5", peer: "karlo-cn-leaf-02", channel: "20" }
 
-mlag_ip: "10.0.70.6/30"
-mlag_peer_ip: "10.0.70.5"
+mlag_ip: "10.0.70.2/30"
+mlag_peer_ip: "10.0.70.1"
