@@ -3,6 +3,7 @@
   hosts: arista_leaf_switches
 
   tasks:
+### Device Configuration settings ###
     - name: "Configure Hostname"
       arista.eos.eos_system:
         hostname: "{{ inventory_hostname }}"
@@ -27,6 +28,7 @@
         state: merged
       loop: "{{ north_star_vlans }}"
 
+### VLAN Configuration ###
     - name: "Configure VLAN Descriptions"
       arista.eos.eos_interfaces:
         config:
@@ -35,6 +37,7 @@
         state: merged
       loop: "{{ north_star_vlans }}"
 
+### Interface Configuration ###
     - name: "Configure Physical Interfaces"
       arista.eos.eos_interfaces:
         config:
@@ -44,6 +47,7 @@
         state: merged
       loop: "{{ leaf_interfaces }}"
 
+### Global Port-Channel Configuration ###
     - name: "Configure Port Channels on Physical Interfaces"
       arista.eos.eos_lag_interfaces:
         config:
@@ -64,6 +68,7 @@
         state: merged
       loop: "{{ leaf_interfaces }}"
 
+### Save Configuration ###
     - name: "Save Configuration"
       arista.eos.eos_config:
         save_when: modified
