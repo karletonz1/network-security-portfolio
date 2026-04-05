@@ -264,22 +264,40 @@ An authentication order will be configured via Pluggable Authentication Modules:
 
 ### 8. Verification
 
-**Ansible 'Deploy North Star' Playbook for Phase 2**
+## Ansible 'Deploy North Star' Playbook for Phase 2  
+<img width="870" height="867" alt="image" src="https://github.com/user-attachments/assets/f0dfa6e0-71f9-4c00-9bd6-5f0fbe988b40" />
+<img width="868" height="867" alt="image" src="https://github.com/user-attachments/assets/c5b119aa-e8eb-4a4c-aec1-331836ba6b3c" />
+<img width="868" height="674" alt="image" src="https://github.com/user-attachments/assets/d06b5afe-1c10-41b0-98dc-6bbef453e7f0" />
 
-<img width="870" height="687" alt="image" src="https://github.com/user-attachments/assets/a25f5bad-4d81-40eb-93fe-2c65c110855f" />
-<img width="867" height="775" alt="image" src="https://github.com/user-attachments/assets/d15b62f3-ab96-4af6-b867-c8b41d895446" />
-<img width="868" height="683" alt="image" src="https://github.com/user-attachments/assets/14b66fae-8049-46af-a3ac-15b61adb334f" />
-<img width="870" height="934" alt="image" src="https://github.com/user-attachments/assets/c36d5cbb-9abb-4d1b-99f7-387d6cfcee77" />
-<img width="871" height="108" alt="image" src="https://github.com/user-attachments/assets/840a3175-00af-4e94-b9d9-85995e320cdb" />
-
-**MLAG between Spine-01 and Spine-02**  
+## MLAG between Spine-01 and Spine-02  
 <img width="404" height="394" alt="image" src="https://github.com/user-attachments/assets/0b0dc401-8e5b-4468-98c3-eb2cd4494b36" /> <img width="407" height="394" alt="image" src="https://github.com/user-attachments/assets/ff7576e7-dbf7-4a15-8b85-988893a65b05" />
 
-**Leaf LACP Peer**  
-<img width="556" height="195" alt="image" src="https://github.com/user-attachments/assets/79c28f2e-4f9a-43f2-b748-9e767a8c3861" /> <img width="559" height="195" alt="image" src="https://github.com/user-attachments/assets/e0efb24c-4aa7-487a-b1c6-cb9e657b2956" />  
+## Leaf LACP Peer  
+**Leaf 1**  
+<img width="556" height="195" alt="image" src="https://github.com/user-attachments/assets/79c28f2e-4f9a-43f2-b748-9e767a8c3861" />  
+
+**Leaf 2**  
+<img width="559" height="195" alt="image" src="https://github.com/user-attachments/assets/e0efb24c-4aa7-487a-b1c6-cb9e657b2956" />  
 
 > [!NOTE]  
-> Subtract 32768 from the number found in the Port# column to verify the secondary port
+> By subtracting 32768 from the number found in the Port# column, we can verify the correct secondary port is in use
+
+## Spanning Tree  
+**Leaf 1**  
+<img width="511" height="272" alt="image" src="https://github.com/user-attachments/assets/56acef4d-2d67-486b-8931-aa1d12d3b63e" />  
+
+**Leaf 2**  
+<img width="513" height="271" alt="image" src="https://github.com/user-attachments/assets/c0dfc83c-1575-4cbe-866b-079cd7327e0b" />  
+
+**Spine 1**  
+<img width="507" height="255" alt="image" src="https://github.com/user-attachments/assets/38acd6d3-71cb-49de-a993-b52196c92910" />  
+
+**Spine 2**  
+<img width="509" height="254" alt="image" src="https://github.com/user-attachments/assets/6cadc2c4-93de-4205-aa5b-0d6647632ca2" />  
+  
+
+
+
 
 
 
