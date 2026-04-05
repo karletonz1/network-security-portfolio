@@ -126,6 +126,7 @@
           - "peer-address {{ mlag_peer_ip }}"
           - "peer-link Port-Channel 70"
 
+### Save Configuration ###
     - name: "Save Configuration"
       arista.eos.eos_config:
         save_when: modified
