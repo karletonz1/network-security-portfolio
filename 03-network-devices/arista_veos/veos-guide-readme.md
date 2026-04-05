@@ -1,6 +1,8 @@
 # Arista vEOS Switch Deployment Guide
 
-This section documents the deployment and automation of the switch environment using Arista vEOS Switches for the North Star Infrastructure. These switches are used to simulate the aggregation and access layer both respectively labelled Spine and Leaf. MLAG will be deployed to ensure at least 2 links are connected between all switches, and MLAG links with LACP will be configured for the links connecting the Spines to the VyOS Routers.
+This section documents the deployment and automation of the switch environment using Arista vEOS Switches for the North Star Infrastructure. These switches are used to simulate the aggregation and access layer both respectively labelled Spine and Leaf. MLAG will be deployed to ensure at least 2 links are connected between all switches, and MLAG links with LACP will be configured for the links connecting the Spines to the VyOS Routers.  
+
+The last section includes screenshots for verification of successful deployment of the switches via Ansible.
 
 ### 1. Prerequisites & Node Specification
 
@@ -47,10 +49,11 @@ Resources (Per Node):
 ### 2. Logical Topology
 
 <img width="1172" height="566" alt="image" src="https://github.com/user-attachments/assets/e6dccf71-831c-4712-a872-af92a10dd093" />  
-  
-ℹ️ In order to provision the devices using ansible and only a bootstrap configuration, an out-of-band-management (OOBM) network was needed to replicate what would be done in a production environment with a separate OOBM network. This lab simulates this using a separate switch connected to the network devices via a dedicated VRF management network on vlan 10.
-  
-<img width="1087" height="650" alt="image" src="https://github.com/user-attachments/assets/adcea78a-fa21-4a69-9669-59f996e18e9a" />
+
+> [!NOTE]  
+> In order to provision the devices using Ansible with only a bootstrap configuration, an out-of-band-management (OOBM) network was needed to replicate what would be done in a production environment with a separate OOBM network. This lab simulates this using a separate switch connected to the network devices via a dedicated VRF management network on vlan 10.  
+
+<img width="1087" height="650" alt="image" src="https://github.com/user-attachments/assets/adcea78a-fa21-4a69-9669-59f996e18e9a" />  
 
 
 ### IP Address Allocation (Spine Switch Layer-Arista vEOS)
@@ -94,14 +97,15 @@ Resources (Per Node):
 
 Step 1: Manual Bootstrap: Minimum configuration required via CLI to allow Ansible to reach the devices before pushing the remaining configuration via automation.  
 
-⚠️For all switches, run ***#zerotouch cancel*** to stop Arista ZTP and enter manual configuration mode. This will trigger an immediate switch reload.  
+> [!TIP]  
+> For all switches, run `#zerotouch cancel` first to stop Arista ZTP and enter manual configuration mode. This will trigger an immediate switch reload.  
 
 **karlo-cn-leaf-01 Bootstrap Config**  
 ```text
 enable
 config
 
-! Management User (This cannot be pasted - recommended manually configuring user)
+! Management User
 username leafadmin privilege 15 secret "{{ vault_leaf_admin_pass }}"
 enable password "{{ vault_leaf_enable_pass }}"
 
@@ -134,7 +138,7 @@ copy run start
 enable
 config
 
-! Management User (This cannot be pasted - recommended manually configuring user)
+! Management User
 username leafadmin privilege 15 secret "{{ vault_leaf_admin_pass }}"
 enable password "{{ vault_leaf_enable_pass }}"
 
@@ -166,7 +170,7 @@ copy run start
 enable
 config
 
-! Management User (This cannot be pasted - recommended manually configuring user)
+! Management User
 username spineadmin privilege 15 secret "{{ vault_spine_admin_pass }}"
 enable password "{{ vault_spine_enable_pass }}"
 
@@ -198,7 +202,7 @@ copy run start
 enable
 config
 
-! Management User (This cannot be pasted - recommended manually configuring user)
+! Management User
 username spineadmin privilege 15 secret "{{ vault_spine_admin_pass }}"
 enable password "{{ vault_spine_enable_pass }}"
 
@@ -224,29 +228,17 @@ exit
 
 copy run start
 ```
-**karlo-cn-ansible Bootstrap Config**
-```text
-# 1. Assign the IP and bring the interface up
-ifconfig eth0 10.0.10.253 netmask 255.255.255.0 up
 
-# 2. Add the default gateway
-route add default gw 10.0.10.254
-```
-ℹ️ To check if ansible was successful for the leaf configuration only, you should see something like this:  
-<img width="863" height="850" alt="image" src="https://github.com/user-attachments/assets/79b5f5ad-4e55-449b-a9af-8ec519163441" />
-
-
-**Ansible Network Automation**  
-State-based configuration to manage:  
+### 6. Ansible Network Automation    
   :white_check_mark: Basic configuration such as system hostnames and ompliance banners  
-  :white_check_mark: Control plane hardening and RBAC 
+  :white_check_mark: Control plane hardening and RBAC  
   :white_check_mark: SNMP and Syslog configuration  
   :white_check_mark: NTP/DNS Settings  
   :white_check_mark: MLAG and LACP configuration  
   :white_check_mark: VLAN and Trunking configuration  
   :white_check_mark: MSTP configuration  
 
-### 6. Security & Compliance Hardening
+### 7. Security & Compliance Hardening
 
 **Banner/MOTD:**  
 Mandatory legal warning for unauthorized access.
@@ -269,6 +261,29 @@ An authentication order will be configured via Pluggable Authentication Modules:
 ✅ Syslog configuration  
 ✅ SNMPv3 only
 
-[Refer here for configuration](https://github.com/karletonz1/karlo-cn-ent-lab/blob/main/03-network-devices/open-vswitch/ansible/base-config.yml)
+
+### 8. Verification
+
+**Ansible 'Deploy North Star' Playbook for Phase 2**
+
+<img width="870" height="687" alt="image" src="https://github.com/user-attachments/assets/a25f5bad-4d81-40eb-93fe-2c65c110855f" />
+<img width="867" height="775" alt="image" src="https://github.com/user-attachments/assets/d15b62f3-ab96-4af6-b867-c8b41d895446" />
+<img width="868" height="683" alt="image" src="https://github.com/user-attachments/assets/14b66fae-8049-46af-a3ac-15b61adb334f" />
+<img width="870" height="934" alt="image" src="https://github.com/user-attachments/assets/c36d5cbb-9abb-4d1b-99f7-387d6cfcee77" />
+<img width="871" height="108" alt="image" src="https://github.com/user-attachments/assets/840a3175-00af-4e94-b9d9-85995e320cdb" />
+
+**MLAG between Spine-01 and Spine-02**  
+<img width="404" height="394" alt="image" src="https://github.com/user-attachments/assets/0b0dc401-8e5b-4468-98c3-eb2cd4494b36" /> <img width="407" height="394" alt="image" src="https://github.com/user-attachments/assets/ff7576e7-dbf7-4a15-8b85-988893a65b05" />
+
+**Leaf LACP Peer**  
+<img width="556" height="195" alt="image" src="https://github.com/user-attachments/assets/79c28f2e-4f9a-43f2-b748-9e767a8c3861" /> <img width="559" height="195" alt="image" src="https://github.com/user-attachments/assets/e0efb24c-4aa7-487a-b1c6-cb9e657b2956" />  
+
+> [!NOTE]  
+> Subtract 32768 from the number found in the Port# column to verify the secondary port
+
+
+
+
+
 
 
