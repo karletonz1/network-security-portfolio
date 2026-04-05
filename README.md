@@ -136,8 +136,22 @@ Challenges and wins:
 - Proof of concept was achieved after the removal of the pre-existing connections via data ports, and successfully running the playbooks using the OOBM connections via a GNS3 Ethernet switch. Multiple tests using the new lean bootstrap configuration was done.
 
 2. Numerous changes to physical and logical topologies were done to reflect this new addition to the lab.
-   
-3. Blood, sweat, and tears were shed whilst trying to learn and create the playbooks needed to deploy the Arista leaf and spine switches. I encountered instances where unknown precedences were happening within the switches causing it to retain certain unwanted commands which broke the MLAG configuration. Ad-hoc solutions like adding 'no' commands within an Ansible task to remove the unwanted code, were needed to achieve 100% automated deployment up until the end of phase 2. The end of phase 2 indicates successful deployment of the full spine and leaf configurations, confirmed MLAG peer status, and port-channel active status from the leafs to their respective spines, all through the use of Ansible.
+
+4. 4. The relative complexity of trying to automate MLAG configuration meant there were several ways to write playbooks to achieve the desired configuration on the spines. This made for good practice testing the various ansible modules that would deploy the configuration, but also in the most efficient manner.
+
+5. Blood, sweat, and tears were shed whilst trying to learn and create the playbooks needed to deploy the Arista leaf and spine switches. I encountered instances where unknown precedences were happening within the switches causing it to retain certain unwanted commands which broke the MLAG configuration. Ad-hoc solutions like adding 'no' commands within an Ansible task to remove the unwanted code, were needed to achieve 100% automated deployment up until the end of phase 2. The end of phase 2 indicates successful deployment of the full spine and leaf configurations, confirmed MLAG peer status, and port-channel active status from the leafs to their respective spines, MSTP is configured correctly and all 4 switches have received their assigned piorities, all through the use of Ansible.
+
+### Beyond the Layer 2 (Phase 3)
+Now that the spines and leafs were operational at layer 2, it was time to focus on the layer 3 boundary between the spines and the routers. This required focusing on layer 3 addressing and configuration in the 'router domain' which are the PTP links between the routers-spines and routers-routers. It also signals the start of the routing phase and the deployment of OSPF configuration on the spines and routers. This meant revisiting the Ansible playbooks and adding a new SVI and OSPF configuration section. 
+
+Challenges and wins:
+1. I've been able to learn a lot of nuances with Ansible and writing playbooks. Important ones that resonated with myself:
+   - If your playbook fails at a certain point in your list, it won't proceed with any other tasks.
+   - Case sensitivity and indentation is king. I've come to appreciate that YAML trades flexibility for readability. Every extra indentation or trailing spaces will bring up errors every time.
+   - Using tools like `--syntax-check`, `--list-tasks`, `--check`, and even `Ansible-lint` are invaluable tools you can use when crafting Ansible playbooks.
+   - When using context sub-menus such as 'parents' in your tasks, ensure that you are thinking about where it fits in with the rest of the lines you are trying to run in your task.
+   - There are some ghosts within Ansible that cannot be explained. For instance, running a YAML file that includes running multiple playbooks that suddenly only does the first playbook, but changing the order forces it to run both playbooks again correctly.
+   - When writing variables, ensure the values match what you have written in your host file.
 
 ## Contact
 - GitHub: https://github.com/karletonz1
